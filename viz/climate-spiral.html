@@ -23,6 +23,9 @@ footer{padding:6px 20px 12px;font:400 10px 'IBM Plex Mono',monospace;color:var(-
 footer a{color:var(--acc);text-decoration:none}
 footer a:hover{color:var(--ink)}
 @media(max-width:640px){.cities{overflow-x:auto;flex-wrap:nowrap}}
+.rec header,.rec .bar,.rec footer{display:none}
+.rec #stage{position:fixed;inset:0}
+.rec canvas{inset:auto;left:50%;top:50%;transform:translate(-50%,-50%);width:min(100vw,100vh);height:min(100vw,100vh)}
 </style></head><body>
 <header>
 <h1 id="title">Climate spiral — Basel/Binningen</h1>
@@ -45,7 +48,31 @@ const STATIONS=[{"id":"bas","name":"Basel/Binningen","start":1755,"a":[-483,-428
 const MONTH_LABELS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 const stage=document.getElementById('stage');
-const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches||new URLSearchParams(location.search).has('end');
+const REC=new URLSearchParams(location.search).has('record');
+const reduced=!REC&&(matchMedia('(prefers-reduced-motion: reduce)').matches||new URLSearchParams(location.search).has('end'));
+if(REC)document.body.classList.add('rec');
+// ---- canvas video recording (?record) ----
+let recorder=null,recDone=false;
+function startRecording(){
+  if(!REC)return;
+  if(recorder&&recorder.state!=='inactive')recorder.stop();
+  const stream=cv.captureStream(60);
+  const mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm';
+  const r=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:12e6});
+  const chunks=[];
+  r.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  r.onstop=()=>{
+    const url=URL.createObjectURL(new Blob(chunks,{type:'video/webm'}));
+    const a=document.createElement('a');
+    a.href=url;a.download=(S?S.name.split('/')[0].toLowerCase().replace(/[^a-z]/g,''):'basel')+'-climate-spiral.webm';
+    document.body.appendChild(a);a.click();a.remove();
+  };
+  r.start();recorder=r;recDone=false;
+}
+function stopRecording(){
+  if(recorder&&recorder.state!=='inactive')recorder.stop();
+  recDone=true;
+}
 
 let S=null;        // current station object (+derived)
 let W=0,H=0,cx=0,cy=0,maxR=0,towerH=0,R0=0,RS=0;
@@ -90,8 +117,16 @@ function restart(){
   if(reduced){mi=S.anom.length;tilt=TILT_MAX;phase='settle';annA=1;
     document.getElementById('btnSkip').style.display='none';
     document.getElementById('btnReplay').style.display='';}
+  startRecording();
 }
 function layout(){
+  if(REC){
+    cv.width=1080;cv.height=1080;ctx.setTransform(1,0,0,1,0,0);
+    W=H=1080;cx=W/2;cy=H/2+14;
+    maxR=400;towerH=H*0.58;
+    RS=(maxR-40)/6;R0=40+2.5*RS;
+    return;
+  }
   const r=stage.getBoundingClientRect(),d=devicePixelRatio||1;
   cv.width=r.width*d;cv.height=r.height*d;ctx.setTransform(d,0,0,d,0,0);
   W=r.width;H=r.height;cx=W/2;cy=H/2;
@@ -146,7 +181,7 @@ function frame(now){
   // state machine
   if(phase==='draw'){
     tDraw+=dt;
-    const rate=3+Math.min(23,tDraw*1.4); // years per second
+    const rate=REC?6+Math.min(30,tDraw*2.2):3+Math.min(23,tDraw*1.4); // years per second
     mi+=rate*12*dt;
     if(mi>=S.anom.length){mi=S.anom.length;phase='pause';tPhase=0;}
   }else if(phase==='pause'){
@@ -164,6 +199,7 @@ function frame(now){
     tPhase+=dt;
     if(!reduced)az+=dt*0.05;
     annA=Math.min(1,annA+dt*1.2);
+    if(REC&&!recDone&&tPhase>4.2)stopRecording();
   }
   render();
   requestAnimationFrame(frame);
@@ -242,6 +278,15 @@ function render(){
   }
   ctx.globalAlpha=1;ctx.shadowBlur=0;
 
+  // record mode: title + credit live in the video frame
+  if(REC){
+    ctx.textAlign='left';
+    ctx.fillStyle='#ececea';ctx.font='500 30px "IBM Plex Sans",sans-serif';
+    ctx.fillText(S.name.split('/')[0]+', '+S.start+'–'+S.endYear,40,62);
+    ctx.fillStyle='#8f8f88';ctx.font='400 16px "IBM Plex Mono",monospace';
+    ctx.fillText('monthly mean temperature vs 1871–1900',40,90);
+    ctx.fillText('After Ed Hawkins’ Climate Spiral · Data: MeteoSwiss',40,H-34);
+  }
   // year counter: center -> top-right as it tilts
   const p=tilt/TILT_MAX,e=p*p*(3-2*p);
   const yr=Math.min(S.start+Math.floor(mi/12),S.endYear);
