@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taejin Park | Economic Researcher</title>
+<meta name="description" content="Personal website of Taejin Park, economic researcher. Research papers, CV and contact details.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FCFCFA;
+    --ink: #1A1C1E;
+    --muted: #6A6E6B;
+    --accent: #1F5B45;
+    --rule: #E4E5E1;
+    --rule-strong: #C9CBC5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Newsreader', Georgia, serif;
+    font-optical-sizing: auto;
+    font-size: 18px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .mono {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  .wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---------- Header ---------- */
+
+  header { padding: 56px 0 0; }
+
+  nav {
+    display: flex;
+    gap: 28px;
+    padding-bottom: 40px;
+  }
+  nav a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  nav a:hover { color: var(--accent); text-decoration: none; }
+
+  .masthead h1 {
+    font-size: clamp(2.4rem, 6vw, 3.4rem);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+
+  /* Signature: a quiet time-series line under the name */
+  .spark {
+    display: block;
+    margin: 18px 0 22px;
+    width: 200px;
+    height: 26px;
+  }
+  .spark path {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .masthead p.lede {
+    font-size: 1.15rem;
+    max-width: 56ch;
+    color: var(--ink);
+  }
+  .masthead p.lede em { font-style: italic; }
+
+  .id-links {
+    margin-top: 22px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+  }
+  .id-links a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* ---------- Sections ---------- */
+
+  section { padding-top: 64px; }
+  section:last-of-type { padding-bottom: 88px; }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    border-bottom: 1px solid var(--rule-strong);
+    padding-bottom: 10px;
+    margin-bottom: 6px;
+  }
+  .section-head h2 {
+    font-size: 1.45rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  /* ---------- Research ledger ---------- */
+
+  .paper {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 20px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .paper .year {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    padding-top: 5px;
+  }
+  .paper h3 {
+    font-size: 1.12rem;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+  .paper h3 a { color: var(--ink); }
+  .paper h3 a:hover { color: var(--accent); }
+  .paper .venue {
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-top: 2px;
+  }
+  .paper .abstract {
+    margin-top: 8px;
+    font-size: 0.98rem;
+    color: #3B3E3C;
+  }
+  .paper .paper-links {
+    margin-top: 8px;
+    display: flex;
+    gap: 18px;
+  }
+  .paper .paper-links a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- CV / About ---------- */
+
+  .cv-row {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 20px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .cv-row .years {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    padding-top: 3px;
+  }
+  .cv-row p { font-size: 1rem; }
+  .cv-row p .org { color: var(--muted); }
+
+  .cv-download { margin-top: 20px; }
+
+  /* ---------- Contact / footer ---------- */
+
+  .contact p { max-width: 56ch; }
+  .contact .email {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9rem;
+    margin-top: 12px;
+    display: inline-block;
+  }
+
+  footer {
+    border-top: 1px solid var(--rule-strong);
+    padding: 28px 0 48px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  footer .mono { font-size: 0.68rem; }
+
+  @media (max-width: 560px) {
+    .paper, .cv-row { grid-template-columns: 1fr; gap: 4px; }
+    nav { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <nav aria-label="Main">
+      <a href="#research">Research</a>
+      <a href="#cv">CV</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="masthead">
+      <h1>Taejin Park</h1>
+      <!-- Signature motif: a small time-series line. Regenerate or remove as you like. -->
+      <svg class="spark" viewBox="0 0 200 26" aria-hidden="true">
+        <path d="M2 20 L26 16 L50 18 L74 10 L98 13 L122 6 L146 9 L170 4 L198 7"/>
+      </svg>
+      <p class="lede">
+        <!-- EDIT: two sentences on who you are and what you work on. -->
+        Economic researcher working on macroeconomics and financial stability.
+        I study how monetary policy and financial conditions shape the real economy.
+      </p>
+      <div class="id-links">
+        <!-- EDIT: keep the profiles you actually use, delete the rest. -->
+        <a href="mailto:you@example.com">Email</a>
+        <a href="https://scholar.google.com/">Google Scholar</a>
+        <a href="https://github.com/">GitHub</a>
+        <a href="https://ideas.repec.org/">RePEc</a>
+      </div>
+    </div>
+  </header>
+
+  <section id="research">
+    <div class="section-head">
+      <h2>Research</h2>
+      <span class="mono">Working papers and publications</span>
+    </div>
+
+    <!-- EDIT: one .paper block per paper. Copy, paste, amend. -->
+    <article class="paper">
+      <div class="year">2026</div>
+      <div>
+        <h3><a href="#">Sample working paper title goes here: replace with your own</a></h3>
+        <p class="venue">Working paper</p>
+        <p class="abstract">
+          One or two sentences of abstract. Keep it short on the page and let the
+          PDF carry the full version.
+        </p>
+        <div class="paper-links">
+          <a href="#">PDF</a>
+          <a href="#">Code</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="paper">
+      <div class="year">2025</div>
+      <div>
+        <h3><a href="#">A second sample paper, published this time</a></h3>
+        <p class="venue">Journal of Placeholder Economics, vol. 00, pp. 1–30</p>
+        <p class="abstract">
+          Brief description of the paper and its main finding.
+        </p>
+        <div class="paper-links">
+          <a href="#">PDF</a>
+          <a href="#">Published version</a>
+          <a href="#">Data</a>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section id="cv">
+    <div class="section-head">
+      <h2>CV</h2>
+      <span class="mono">Selected entries</span>
+    </div>
+
+    <!-- EDIT: a few headline positions and degrees. Full detail belongs in the PDF. -->
+    <div class="cv-row">
+      <div class="years">2024–</div>
+      <p>Economist <span class="org">· Your current institution</span></p>
+    </div>
+    <div class="cv-row">
+      <div class="years">2020–24</div>
+      <p>Previous role <span class="org">· Previous institution</span></p>
+    </div>
+    <div class="cv-row">
+      <div class="years">2020</div>
+      <p>PhD in Economics <span class="org">· Your university</span></p>
+    </div>
+
+    <p class="cv-download">
+      <a href="cv.pdf">Download full CV (PDF)</a>
+    </p>
+  </section>
+
+  <section id="contact" class="contact">
+    <div class="section-head">
+      <h2>Contact</h2>
+    </div>
+    <p>
+      The quickest way to reach me is by email. I am happy to hear about
+      research collaborations, seminar invitations and data questions.
+    </p>
+    <a class="email" href="mailto:you@example.com">you@example.com</a>
+  </section>
+
+  <footer>
+    <span class="mono">© 2026 Taejin Park</span>
+    <span class="mono">Last updated August 2026</span>
+  </footer>
+
+</div>
+
+</body>
+</html>
