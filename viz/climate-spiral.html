@@ -57,14 +57,16 @@ function startRecording(){
   if(!REC)return;
   if(recorder&&recorder.state!=='inactive')recorder.stop();
   const stream=cv.captureStream(60);
-  const mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm';
-  const r=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:12e6});
+  const mime=['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm']
+    .find(m=>MediaRecorder.isTypeSupported(m))||'video/webm';
+  const r=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:35e6});
   const chunks=[];
   r.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
   r.onstop=()=>{
-    const url=URL.createObjectURL(new Blob(chunks,{type:'video/webm'}));
+    const ext=mime.startsWith('video/mp4')?'mp4':'webm';
+    const url=URL.createObjectURL(new Blob(chunks,{type:mime.split(';')[0]}));
     const a=document.createElement('a');
-    a.href=url;a.download=(S?S.name.split('/')[0].toLowerCase().replace(/[^a-z]/g,''):'basel')+'-climate-spiral.webm';
+    a.href=url;a.download=(S?S.name.split('/')[0].toLowerCase().replace(/[^a-z]/g,''):'basel')+'-climate-spiral.'+ext;
     document.body.appendChild(a);a.click();a.remove();
   };
   r.start();recorder=r;recDone=false;
@@ -80,6 +82,7 @@ let phase='draw';  // draw | pause | rotate | settle
 let mi=0;          // month index progress (float)
 let tPhase=0,tDraw=0,az=0,tilt=0,annA=0;
 const TILT_MAX=1.43; // ~82°
+const GLOW=REC?14:9; // shadowBlur is unaffected by the canvas transform, so scale it for the 1.6x recording
 let lastT=null;
 
 function pickStation(id){
@@ -121,10 +124,12 @@ function restart(){
 }
 function layout(){
   if(REC){
-    cv.width=1080;cv.height=1080;ctx.setTransform(1,0,0,1,0,0);
-    W=H=1080;cx=W/2;cy=H/2+14;
-    maxR=400;towerH=H*0.58;
-    RS=(maxR-40)/6;R0=40+2.5*RS;
+    // identical logical space to a 675px on-screen square (same relative
+    // line weights, fonts, glow as the live page), scaled 1.6x to 1080
+    cv.width=1080;cv.height=1080;ctx.setTransform(1.6,0,0,1.6,0,0);
+    W=H=675;cx=W/2;cy=H/2+16;
+    maxR=250;towerH=H*0.6;
+    RS=(maxR-24)/6;R0=24+2.5*RS;
     return;
   }
   const r=stage.getBoundingClientRect(),d=devicePixelRatio||1;
@@ -256,7 +261,7 @@ function render(){
     if(prev&&prevI===i-1){
       const ring=Math.floor(i/12),age=curRing-ring,col=ringColor(S.ringMean[ring]);
       ctx.strokeStyle=col;
-      if(age<=0){ctx.globalAlpha=1;ctx.lineWidth=2.4;ctx.shadowColor=col;ctx.shadowBlur=9;}
+      if(age<=0){ctx.globalAlpha=1;ctx.lineWidth=2.4;ctx.shadowColor=col;ctx.shadowBlur=GLOW;}
       else if(age<=10){ctx.globalAlpha=0.9-0.05*age;ctx.lineWidth=1.6;ctx.shadowBlur=0;}
       else{ctx.globalAlpha=0.3;ctx.lineWidth=1.1;ctx.shadowBlur=0;}
       ctx.beginPath();ctx.moveTo(prev[0],prev[1]);ctx.lineTo(p[0],p[1]);ctx.stroke();
@@ -271,7 +276,7 @@ function render(){
       const th=angOf((nSeg-1)%12)+(Math.PI/6)*frac;
       const p1=proj(th,rOf(a0+(a1-a0)*frac),hOf(nSeg-1+frac));
       const col=ringColor(S.ringMean[curRing]);
-      ctx.strokeStyle=col;ctx.shadowColor=col;ctx.shadowBlur=9;
+      ctx.strokeStyle=col;ctx.shadowColor=col;ctx.shadowBlur=GLOW;
       ctx.globalAlpha=1;ctx.lineWidth=2.4;
       ctx.beginPath();ctx.moveTo(p0[0],p0[1]);ctx.lineTo(p1[0],p1[1]);ctx.stroke();
     }
@@ -281,11 +286,11 @@ function render(){
   // record mode: title + credit live in the video frame
   if(REC){
     ctx.textAlign='left';
-    ctx.fillStyle='#ececea';ctx.font='500 30px "IBM Plex Sans",sans-serif';
-    ctx.fillText(S.name.split('/')[0]+', '+S.start+'–'+S.endYear,40,62);
-    ctx.fillStyle='#8f8f88';ctx.font='400 16px "IBM Plex Mono",monospace';
-    ctx.fillText('monthly mean temperature vs 1871–1900',40,90);
-    ctx.fillText('After Ed Hawkins’ Climate Spiral · Data: MeteoSwiss',40,H-34);
+    ctx.fillStyle='#ececea';ctx.font='500 19px "IBM Plex Sans",sans-serif';
+    ctx.fillText(S.name.split('/')[0]+', '+S.start+'–'+S.endYear,26,40);
+    ctx.fillStyle='#8f8f88';ctx.font='400 10.5px "IBM Plex Mono",monospace';
+    ctx.fillText('monthly mean temperature vs 1871–1900',26,58);
+    ctx.fillText('After Ed Hawkins’ Climate Spiral · Data: MeteoSwiss',26,H-22);
   }
   // year counter: center -> top-right as it tilts
   const p=tilt/TILT_MAX,e=p*p*(3-2*p);
