@@ -44,7 +44,7 @@ a{color:var(--acc);text-decoration:none}a:hover{color:var(--ink)}
 <div style="overflow:hidden;border:1px solid var(--line);border-radius:6px">
 <div style="display:flex;transition:transform .45s cubic-bezier(.4,0,.2,1);transform: {{ vizTransform }}">
 <sc-for list="{{ posts }}" as="post" hint-placeholder-count="1">
-<div style="flex:0 0 100%;height:380px"><image-slot id="viz-{{ $index }}" shape="rect" placeholder="Drop a chart / visualisation image"></image-slot></div>
+<div style="flex:0 0 100%;min-width:0;height:380px"><image-slot id="viz-{{ $index }}" shape="rect" placeholder="Drop a chart / visualisation image"></image-slot></div>
 </sc-for>
 </div>
 </div>
