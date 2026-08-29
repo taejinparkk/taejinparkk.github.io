@@ -212,6 +212,9 @@ function frame(now){
 
 function render(){
   ctx.clearRect(0,0,W,H);
+  // video has no alpha channel: in record mode the dark background must be
+  // IN the canvas, or every semi-transparent stroke exports at full strength
+  if(REC){ctx.fillStyle='#141413';ctx.fillRect(0,0,W,H);}
   const sinT=Math.sin(tilt),cosT=Math.cos(tilt);
   const topAlpha=Math.pow(cosT,2),sideAlpha=sinT;
 
@@ -304,12 +307,14 @@ function render(){
   if(annA>0.02){
     const hTop=hOf(S.anom.length-1)*Math.sin(tilt);
     ctx.textAlign='left';
-    ctx.fillStyle='rgba(255,92,64,'+annA+')';
     ctx.font='500 13px "IBM Plex Sans",sans-serif';
-    ctx.fillText('2016–25: +'+S.warming.toFixed(1)+' °C',cx+rOf(3)+14,cy-hTop+22);
+    const annText='2016–25: +'+S.warming.toFixed(1)+' °C';
+    const ax=Math.min(cx+rOf(3)+14,W-12-ctx.measureText(annText).width);
+    ctx.fillStyle='rgba(255,92,64,'+annA+')';
+    ctx.fillText(annText,ax,cy-hTop+22);
     ctx.fillStyle='rgba(143,143,136,'+(0.9*annA)+')';
     ctx.font='400 10.5px "IBM Plex Mono",monospace';
-    ctx.fillText('vs 1871–1900',cx+rOf(3)+14,cy-hTop+38);
+    ctx.fillText('vs 1871–1900',ax,cy-hTop+38);
   }
 }
 
