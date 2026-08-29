@@ -1,345 +1,303 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Taejin Park | Economic Researcher</title>
-<meta name="description" content="Personal website of Taejin Park, economic researcher. Research papers, CV and contact details.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --paper: #FCFCFA;
-    --ink: #1A1C1E;
-    --muted: #6A6E6B;
-    --accent: #1F5B45;
-    --rule: #E4E5E1;
-    --rule-strong: #C9CBC5;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html { scroll-behavior: smooth; }
-  @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
-  }
-
-  body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'Newsreader', Georgia, serif;
-    font-optical-sizing: auto;
-    font-size: 18px;
-    line-height: 1.65;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .mono {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; text-underline-offset: 3px; }
-  a:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
-    border-radius: 2px;
-  }
-
-  .wrap {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 0 24px;
-  }
-
-  /* ---------- Header ---------- */
-
-  header { padding: 56px 0 0; }
-
-  nav {
-    display: flex;
-    gap: 28px;
-    padding-bottom: 40px;
-  }
-  nav a {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  nav a:hover { color: var(--accent); text-decoration: none; }
-
-  .masthead h1 {
-    font-size: clamp(2.4rem, 6vw, 3.4rem);
-    font-weight: 500;
-    letter-spacing: -0.015em;
-    line-height: 1.1;
-  }
-
-  /* Signature: a quiet time-series line under the name */
-  .spark {
-    display: block;
-    margin: 18px 0 22px;
-    width: 200px;
-    height: 26px;
-  }
-  .spark path {
-    fill: none;
-    stroke: var(--accent);
-    stroke-width: 1.6;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  .masthead p.lede {
-    font-size: 1.15rem;
-    max-width: 56ch;
-    color: var(--ink);
-  }
-  .masthead p.lede em { font-style: italic; }
-
-  .id-links {
-    margin-top: 22px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 22px;
-  }
-  .id-links a {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-  }
-
-  /* ---------- Sections ---------- */
-
-  section { padding-top: 64px; }
-  section:last-of-type { padding-bottom: 88px; }
-
-  .section-head {
-    display: flex;
-    align-items: baseline;
-    gap: 14px;
-    border-bottom: 1px solid var(--rule-strong);
-    padding-bottom: 10px;
-    margin-bottom: 6px;
-  }
-  .section-head h2 {
-    font-size: 1.45rem;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-  }
-
-  /* ---------- Research ledger ---------- */
-
-  .paper {
-    display: grid;
-    grid-template-columns: 64px 1fr;
-    gap: 20px;
-    padding: 22px 0;
-    border-bottom: 1px solid var(--rule);
-  }
-  .paper .year {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.78rem;
-    color: var(--muted);
-    padding-top: 5px;
-  }
-  .paper h3 {
-    font-size: 1.12rem;
-    font-weight: 500;
-    line-height: 1.35;
-  }
-  .paper h3 a { color: var(--ink); }
-  .paper h3 a:hover { color: var(--accent); }
-  .paper .venue {
-    font-style: italic;
-    color: var(--muted);
-    font-size: 0.95rem;
-    margin-top: 2px;
-  }
-  .paper .abstract {
-    margin-top: 8px;
-    font-size: 0.98rem;
-    color: #3B3E3C;
-  }
-  .paper .paper-links {
-    margin-top: 8px;
-    display: flex;
-    gap: 18px;
-  }
-  .paper .paper-links a {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  /* ---------- CV / About ---------- */
-
-  .cv-row {
-    display: grid;
-    grid-template-columns: 64px 1fr;
-    gap: 20px;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--rule);
-  }
-  .cv-row .years {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.78rem;
-    color: var(--muted);
-    padding-top: 3px;
-  }
-  .cv-row p { font-size: 1rem; }
-  .cv-row p .org { color: var(--muted); }
-
-  .cv-download { margin-top: 20px; }
-
-  /* ---------- Contact / footer ---------- */
-
-  .contact p { max-width: 56ch; }
-  .contact .email {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.9rem;
-    margin-top: 12px;
-    display: inline-block;
-  }
-
-  footer {
-    border-top: 1px solid var(--rule-strong);
-    padding: 28px 0 48px;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  footer .mono { font-size: 0.68rem; }
-
-  @media (max-width: 560px) {
-    .paper, .cv-row { grid-template-columns: 1fr; gap: 4px; }
-    nav { gap: 20px; }
-  }
-</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taejin Park</title>
+<meta name="description" content="Taejin Park — economist and data scientist at the BIS, applying AI and textual analysis to economic research. Papers, data visualisations, code and CV.">
+<link rel="canonical" href="https://taejinpark.com/">
+<script src="./assets/js/support.js"></script>
 </head>
 <body>
-
-<div class="wrap">
-
-  <header>
-    <nav aria-label="Main">
-      <a href="#research">Research</a>
-      <a href="#cv">CV</a>
-      <a href="#contact">Contact</a>
-    </nav>
-
-    <div class="masthead">
-      <h1>Taejin Park</h1>
-      <!-- Signature motif: a small time-series line. Regenerate or remove as you like. -->
-      <svg class="spark" viewBox="0 0 200 26" aria-hidden="true">
-        <path d="M2 20 L26 16 L50 18 L74 10 L98 13 L122 6 L146 9 L170 4 L198 7"/>
-      </svg>
-      <p class="lede">
-        <!-- EDIT: two sentences on who you are and what you work on. -->
-        Economic researcher working on macroeconomics and financial stability.
-        I study how monetary policy and financial conditions shape the real economy.
-      </p>
-      <div class="id-links">
-        <!-- EDIT: keep the profiles you actually use, delete the rest. -->
-        <a href="mailto:you@example.com">Email</a>
-        <a href="https://scholar.google.com/">Google Scholar</a>
-        <a href="https://github.com/">GitHub</a>
-        <a href="https://ideas.repec.org/">RePEc</a>
-      </div>
-    </div>
-  </header>
-
-  <section id="research">
-    <div class="section-head">
-      <h2>Research</h2>
-      <span class="mono">Working papers and publications</span>
-    </div>
-
-    <!-- EDIT: one .paper block per paper. Copy, paste, amend. -->
-    <article class="paper">
-      <div class="year">2026</div>
-      <div>
-        <h3><a href="#">Sample working paper title goes here: replace with your own</a></h3>
-        <p class="venue">Working paper</p>
-        <p class="abstract">
-          One or two sentences of abstract. Keep it short on the page and let the
-          PDF carry the full version.
-        </p>
-        <div class="paper-links">
-          <a href="#">PDF</a>
-          <a href="#">Code</a>
-        </div>
-      </div>
-    </article>
-
-    <article class="paper">
-      <div class="year">2025</div>
-      <div>
-        <h3><a href="#">A second sample paper, published this time</a></h3>
-        <p class="venue">Journal of Placeholder Economics, vol. 00, pp. 1–30</p>
-        <p class="abstract">
-          Brief description of the paper and its main finding.
-        </p>
-        <div class="paper-links">
-          <a href="#">PDF</a>
-          <a href="#">Published version</a>
-          <a href="#">Data</a>
-        </div>
-      </div>
-    </article>
-  </section>
-
-  <section id="cv">
-    <div class="section-head">
-      <h2>CV</h2>
-      <span class="mono">Selected entries</span>
-    </div>
-
-    <!-- EDIT: a few headline positions and degrees. Full detail belongs in the PDF. -->
-    <div class="cv-row">
-      <div class="years">2024–</div>
-      <p>Economist <span class="org">· Your current institution</span></p>
-    </div>
-    <div class="cv-row">
-      <div class="years">2020–24</div>
-      <p>Previous role <span class="org">· Previous institution</span></p>
-    </div>
-    <div class="cv-row">
-      <div class="years">2020</div>
-      <p>PhD in Economics <span class="org">· Your university</span></p>
-    </div>
-
-    <p class="cv-download">
-      <a href="cv.pdf">Download full CV (PDF)</a>
-    </p>
-  </section>
-
-  <section id="contact" class="contact">
-    <div class="section-head">
-      <h2>Contact</h2>
-    </div>
-    <p>
-      The quickest way to reach me is by email. I am happy to hear about
-      research collaborations, seminar invitations and data questions.
-    </p>
-    <a class="email" href="mailto:you@example.com">you@example.com</a>
-  </section>
-
-  <footer>
-    <span class="mono">© 2026 Taejin Park</span>
-    <span class="mono">Last updated August 2026</span>
-  </footer>
-
+<x-dc>
+<helmet data-dc-atomics=""><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"><link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600&amp;display=swap" rel="stylesheet"><script src="./assets/js/image-slot.js"></script><style>
+:root{--bg:#ffffff;--ink:#1a1a18;--body:#3a3a36;--mut:#6e6e68;--faint:#9a9a92;--line:rgba(26,26,24,.12);--rule:#1a1a18;--acc:#2d5f9e;--ph1:#f4f4f2;--ph2:#ececea}
+body[data-theme="dark"]{--bg:#141413;--ink:#ececea;--body:#c2c2bd;--mut:#8f8f88;--faint:#6e6e68;--line:rgba(236,236,234,.16);--rule:#ececea;--acc:#8fb3de;--ph1:#1e1e1c;--ph2:#232321}
+html{scroll-behavior:smooth}
+@keyframes drawline{to{stroke-dashoffset:0}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;transition:background .25s,color .25s}
+a{color:var(--acc);text-decoration:none}a:hover{color:var(--ink)}
+</style></helmet>
+<div style="max-width:760px;margin:0 auto;padding:0 32px">
+<header style="display:flex;justify-content:space-between;align-items:center;padding:22px 0;border-bottom:1px solid var(--line)">
+<span style="font:500 12.5px 'IBM Plex Mono',monospace;color:var(--ink)">Taejin Park</span>
+<button onClick="{{ toggleTheme }}" style="display:flex;align-items:center;gap:8px;background:none;border:1px solid var(--line);border-radius:14px;padding:5px 12px;cursor:pointer;font:400 11px 'IBM Plex Mono',monospace;color:var(--mut);white-space:nowrap">{{ themeLabel }}</button>
+</header>
+<section id="top" style="padding:92px 0 0">
+<h1 style="margin:0 0 28px;font:500 48px/1.12 'Clash Display','IBM Plex Sans',sans-serif;letter-spacing:-.015em;text-wrap:pretty">Economics, measured in text and data.</h1>
+<nav style="display:flex;gap:10px;font:400 13px 'IBM Plex Mono',monospace;color:var(--faint);flex-wrap:wrap">
+<a href="#blog" style="color:var(--ink)">Charts</a><span>/</span>
+<a href="#research" style="color:var(--mut)">Research</a><span>/</span>
+<a href="#code" style="color:var(--mut)">Repository</a><span>/</span>
+<a href="#cv" style="color:var(--mut)">CV</a>
+</nav>
+<div style="margin-top:64px;border-top:1px solid var(--rule);padding-top:26px;display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:stretch">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="width:150px;flex:1;min-height:110px;border-radius:8px;overflow:hidden"><image-slot id="hero-photo" shape="rounded" radius="8" placeholder="portrait"></image-slot></div>
+<div style="font:400 11.5px 'IBM Plex Mono',monospace;color:var(--mut)">Taejin Park</div>
 </div>
-
+<p style="margin:0;max-width:640px;font-size:14px;line-height:1.7;color:var(--mut);text-wrap:pretty">Economist and data scientist at the BIS, applying AI and textual analysis to economic research. This site collects my papers, tools, code and writing.</p>
+</div>
+</section>
+<section id="blog" style="padding:88px 0 0;scroll-margin-top:24px">
+<h2 style="margin:0 0 26px;font:500 24px/1.2 'Clash Display','IBM Plex Sans',sans-serif;border-bottom:1px solid var(--rule);padding-bottom:12px;display:flex;align-items:baseline;gap:10px"><span style="position:relative;display:inline-block">Draw<svg viewBox="0 0 120 14" preserveAspectRatio="none" style="position:absolute;left:-2%;bottom:-9px;width:104%;height:12px;overflow:visible"><path d="M3,8 C22,3 38,11 58,7 C78,3 96,10 117,6" fill="none" stroke="var(--acc)" stroke-width="2.5" stroke-linecap="round" data-drawline="" style="stroke-dasharray:130;stroke-dashoffset:130"></path></svg></span> Your Own Conclusions <span style="font:400 11px 'IBM Plex Mono',monospace;color:var(--faint);letter-spacing:.08em">DATA VISUALISATIONS</span></h2>
+<div style="overflow:hidden;border:1px solid var(--line);border-radius:6px">
+<div style="display:flex;transition:transform .45s cubic-bezier(.4,0,.2,1);transform: {{ vizTransform }}">
+<sc-for list="{{ posts }}" as="post" hint-placeholder-count="1">
+<div style="flex:0 0 100%;height:380px"><image-slot id="viz-{{ $index }}" shape="rect" placeholder="Drop a chart / visualisation image"></image-slot></div>
+</sc-for>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr auto;gap:32px;align-items:start;padding-top:16px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+<span style="font-size:15.5px;font-weight:500;line-height:1.4">{{ vizTitle }}</span>
+<span style="font:400 10.5px 'IBM Plex Mono',monospace;color:var(--faint);white-space:nowrap">{{ vizMeta }}</span>
+<sc-if value="{{ vizHasEmbed }}" hint-placeholder-val="{{ false }}">
+<button onClick="{{ vizOpenLive }}" style="background:none;border:1px solid var(--line);border-radius:12px;padding:3px 11px;cursor:pointer;font:400 10.5px 'IBM Plex Mono',monospace;color:var(--acc);white-space:nowrap" style-hover="border-color:var(--acc)">⤢ open interactive</button>
+</sc-if>
+</div>
+<p style="margin:0;max-width:560px;font-size:13px;line-height:1.6;color:var(--mut);text-wrap:pretty">{{ vizDesc }}</p>
+</div>
+<div style="display:flex;align-items:center;gap:14px">
+<span style="font:400 11.5px 'IBM Plex Mono',monospace;color:var(--faint)">{{ vizCounter }}</span>
+<button onClick="{{ vizPrev }}" style="width:34px;height:34px;background:none;border:1px solid var(--line);border-radius:50%;cursor:pointer;font:400 14px 'IBM Plex Mono',monospace;color:var(--ink)" style-hover="border-color:var(--ink)">←</button>
+<button onClick="{{ vizNext }}" style="width:34px;height:34px;background:none;border:1px solid var(--line);border-radius:50%;cursor:pointer;font:400 14px 'IBM Plex Mono',monospace;color:var(--ink)" style-hover="border-color:var(--ink)">→</button>
+</div>
+</div>
+</section>
+<section id="research" style="padding:88px 0 0;scroll-margin-top:24px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:12px;margin-bottom:8px">
+<h2 style="margin:0;font:500 24px/1.2 'Clash Display','IBM Plex Sans',sans-serif">Research</h2>
+<div style="display:flex;align-items:center;gap:14px">
+<span style="font:400 11.5px 'IBM Plex Mono',monospace;color:var(--faint)">{{ resCounter }}</span>
+<button onClick="{{ resPrev }}" style="width:30px;height:30px;background:none;border:1px solid var(--line);border-radius:50%;cursor:pointer;font:400 13px 'IBM Plex Mono',monospace;color:var(--ink)" style-hover="border-color:var(--ink)">←</button>
+<button onClick="{{ resNext }}" style="width:30px;height:30px;background:none;border:1px solid var(--line);border-radius:50%;cursor:pointer;font:400 13px 'IBM Plex Mono',monospace;color:var(--ink)" style-hover="border-color:var(--ink)">→</button>
+</div>
+</div>
+<div style="overflow:hidden">
+<div style="display:flex;transition:transform .45s cubic-bezier(.4,0,.2,1);transform: {{ resTransform }}">
+<sc-for list="{{ resPages }}" as="page" hint-placeholder-count="1">
+<div style="flex:0 0 100%">
+<sc-for list="{{ page }}" as="p" hint-placeholder-count="5">
+<a href="{{ p.href }}" style="display:grid;grid-template-columns:56px 1fr auto;gap:20px;align-items:baseline;padding:18px 0;border-bottom:1px solid var(--line);color:inherit" style-hover="background:var(--ph1)">
+<span style="font:400 12px 'IBM Plex Mono',monospace;color:var(--faint)">{{ p.year }}</span>
+<span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:15px;font-weight:500;line-height:1.45">{{ p.title }}</span><span style="font:400 11px 'IBM Plex Mono',monospace;color:var(--faint)">{{ p.authors }}</span></span>
+<span style="font:400 11px 'IBM Plex Mono',monospace;color:var(--mut)">{{ p.venue }}</span>
+</a>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+<section id="code" style="padding:88px 0 0;scroll-margin-top:24px">
+<h2 style="margin:0 0 8px;font:500 24px/1.2 'Clash Display','IBM Plex Sans',sans-serif;border-bottom:1px solid var(--rule);padding-bottom:12px">Repository</h2>
+<sc-for list="{{ repos }}" as="r" hint-placeholder-count="3">
+<a href="{{ r.href }}" style="display:grid;grid-template-columns:190px 1fr;gap:24px;align-items:baseline;padding:18px 0;border-bottom:1px solid var(--line);color:inherit" style-hover="background:var(--ph1)">
+<span style="font:500 13px 'IBM Plex Mono',monospace;color:var(--acc)">{{ r.name }}</span>
+<span style="font-size:14.5px;line-height:1.55;color:var(--body)">{{ r.desc }}</span>
+</a>
+</sc-for>
+</section>
+<section id="cv" style="padding:88px 0 0;scroll-margin-top:24px">
+<h2 style="margin:0 0 8px;font:500 24px/1.2 'Clash Display','IBM Plex Sans',sans-serif;border-bottom:1px solid var(--rule);padding-bottom:12px">Curriculum Vitae</h2>
+<sc-for list="{{ cv }}" as="row" hint-placeholder-count="3">
+<div style="display:grid;grid-template-columns:110px 1fr auto;gap:24px;align-items:baseline;padding:18px 0;border-bottom:1px solid var(--line)">
+<span style="font:400 12px 'IBM Plex Mono',monospace;color:var(--faint)">{{ row.years }}</span>
+<span style="font-size:15.5px;font-weight:500">{{ row.org }}</span>
+<span style="font:400 11px 'IBM Plex Mono',monospace;color:var(--mut)">{{ row.loc }}</span>
+</div>
+</sc-for>
+<div style="padding-top:20px"><button onClick="{{ openCv }}" style="background:none;border:none;padding:0;cursor:pointer;font:400 13px 'IBM Plex Mono',monospace;color:var(--acc)" style-hover="color:var(--ink)">→ View full CV</button></div>
+</section>
+<footer style="margin-top:96px;padding:40px 0 48px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:12px">
+<span style="font:400 12.5px 'IBM Plex Mono',monospace;color:var(--mut)">Based in Basel · <a href="https://www.bis.org/author/taejin-park">bis</a> · <a href="https://www.linkedin.com/in/taejin-park-42133619/">linkedin</a></span>
+<span style="font:400 11px 'IBM Plex Mono',monospace;color:var(--faint)">© 2026 Taejin Park</span>
+</footer>
+</div>
+<sc-if value="{{ cvOpen }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ closeCv }}" style="position:fixed;inset:0;background:rgba(20,20,19,.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:32px">
+<div onClick="{{ stopClick }}" style="background:var(--bg);color:var(--ink);width:640px;max-width:100%;max-height:85vh;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:44px 48px 48px;box-shadow:0 24px 64px rgba(0,0,0,.25)">
+<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:8px">
+<h2 style="margin:0;font:500 24px/1.2 'Clash Display','IBM Plex Sans',sans-serif">Curriculum Vitae</h2>
+<button onClick="{{ closeCv }}" style="background:none;border:none;cursor:pointer;font:400 13px 'IBM Plex Mono',monospace;color:var(--mut)" style-hover="color:var(--ink)">✕ close</button>
+</div>
+<div style="font:400 12px 'IBM Plex Mono',monospace;color:var(--faint);padding:10px 0 4px;letter-spacing:.1em">EXPERIENCE</div>
+<sc-for list="{{ cvFull }}" as="e" hint-placeholder-count="3">
+<div style="display:grid;grid-template-columns:100px 1fr;gap:20px;padding:14px 0;border-bottom:1px solid var(--line)">
+<span style="font:400 12px 'IBM Plex Mono',monospace;color:var(--faint)">{{ e.years }}</span>
+<span><span style="font-size:14.5px;font-weight:500">{{ e.role }}</span><br><span style="font-size:13.5px;color:var(--mut)">{{ e.org }}</span></span>
+</div>
+</sc-for>
+<div style="font:400 12px 'IBM Plex Mono',monospace;color:var(--faint);padding:26px 0 4px;letter-spacing:.1em">EDUCATION</div>
+<sc-for list="{{ education }}" as="e" hint-placeholder-count="2">
+<div style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line)">
+<span style="font-size:14.5px"><span style="font-weight:500">{{ e.school }}</span> <span style="color:var(--mut)">— {{ e.degree }}</span></span>
+<span style="font:400 11px 'IBM Plex Mono',monospace;color:var(--mut)">{{ e.loc }}</span>
+</div>
+</sc-for>
+<div style="font:400 12px 'IBM Plex Mono',monospace;color:var(--faint);padding:26px 0 4px;letter-spacing:.1em">POLICY &amp; COMMITTEE WORK</div>
+<div style="padding:14px 0;border-bottom:1px solid var(--line);font-size:14.5px;line-height:1.8">NGFS Data Expert Network<br>G20 Data Gaps Initiative<br>BIS Innovation Hub EDKP Collaboration Group</div>
+<div style="font:400 12px 'IBM Plex Mono',monospace;color:var(--faint);padding:26px 0 4px;letter-spacing:.1em">REFEREE SERVICE</div>
+<div style="padding:14px 0;border-bottom:1px solid var(--line);font-size:14.5px;line-height:1.6">European Economic Review · Transactions on Machine Learning Research <span style="color:var(--mut)">(regular)</span></div>
+<div style="font:400 12px 'IBM Plex Mono',monospace;color:var(--faint);padding:26px 0 4px;letter-spacing:.1em">MEDIA &amp; FEATURES</div>
+<div style="padding:14px 0;border-bottom:1px solid var(--line);font-size:14.5px;line-height:1.6">Research featured in the Financial Times, The Economist and Politico, and in CEPR Discussion Papers and SUERF Policy Briefs.</div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ vizLiveOpen }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ vizCloseLive }}" style="position:fixed;inset:0;background:rgba(20,20,19,.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:32px">
+<div onClick="{{ stopClick }}" style="background:var(--bg);color:var(--ink);width:min(960px,94vw);height:min(620px,85vh);border:1px solid var(--line);border-radius:8px;box-shadow:0 24px 64px rgba(0,0,0,.25);display:flex;flex-direction:column;overflow:hidden">
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding:20px 24px 14px;border-bottom:1px solid var(--line)">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="font:500 17px 'Clash Display','IBM Plex Sans',sans-serif">{{ vizTitle }}</span><span style="font:400 10.5px 'IBM Plex Mono',monospace;color:var(--faint)">{{ vizMeta }}</span></div>
+<button onClick="{{ vizCloseLive }}" style="background:none;border:none;cursor:pointer;font:400 13px 'IBM Plex Mono',monospace;color:var(--mut)" style-hover="color:var(--ink)">✕ close</button>
+</div>
+<iframe src="{{ vizEmbed }}" style="flex:1;width:100%;border:none;background:#ffffff"></iframe>
+</div>
+</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;light&quot;, &quot;dark&quot;], &quot;default&quot;: &quot;light&quot;, &quot;tsType&quot;: &quot;'light' | 'dark'&quot;, &quot;section&quot;: &quot;Appearance&quot;}}">
+class Component extends DCLogic {
+  state = { theme: (typeof localStorage !== 'undefined' && localStorage.getItem('site-theme')) || 'light', cvOpen: false };
+  componentDidMount() {
+    this.applyTheme();
+    const m = (location.hash || '').match(/^#(fig-\d+)$/);
+    if (m) {
+      const idx = this.posts.findIndex(p => p.slug === m[1]);
+      if (idx >= 0) {
+        this.setState({ viz: idx });
+        setTimeout(() => { const s = document.getElementById('blog'); if (s) window.scrollTo({ top: s.offsetTop, behavior: 'auto' }); }, 60);
+      }
+    }
+    const els = document.querySelectorAll('#top, #blog, #research, #code, #cv, footer');
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (en.isIntersecting) {
+          en.target.style.opacity = '1';
+          en.target.style.transform = 'translateY(0)';
+          const p = en.target.querySelector('[data-drawline]');
+          if (p) p.style.animation = 'drawline 0.9s cubic-bezier(.4,0,.2,1) 0.45s forwards';
+          io.unobserve(en.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    els.forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(18px)';
+      el.style.transition = 'opacity .8s cubic-bezier(.25,.5,.25,1), transform .8s cubic-bezier(.25,.5,.25,1)';
+      io.observe(el);
+    });
+    this._io = io;
+  }
+  componentWillUnmount() { if (this._io) this._io.disconnect(); }
+  componentDidUpdate() { this.applyTheme(); }
+  applyTheme() { document.body.dataset.theme = this.getTheme(); }
+  getTheme() {
+    if (!('_lastPropTheme' in this)) { this._lastPropTheme = this.props.theme; }
+    else if (this.props.theme !== this._lastPropTheme) { this._lastPropTheme = this.props.theme; if (this.props.theme) this.state.theme = this.props.theme; }
+    return this.state.theme;
+  }
+  vizVals() {
+    const posts = this.posts, n = posts.length;
+    const i = ((this.state.viz ?? 0) % n + n) % n, p = posts[i];
+    return {
+      vizTransform: `translateX(-${i * 100}%)`,
+      vizTitle: p.title, vizDesc: p.desc, vizMeta: p.meta,
+      vizCounter: `${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}`,
+      vizPrev: () => this.setState({ viz: i - 1 }),
+      vizNext: () => this.setState({ viz: i + 1 }),
+      vizHasEmbed: !!p.embed,
+      vizEmbed: p.embed || '',
+      vizLiveOpen: this.state.vizLive || false,
+      vizOpenLive: () => this.setState({ vizLive: true }),
+      vizCloseLive: () => this.setState({ vizLive: false })
+    };
+  }
+  papers = [
+    { year: '2026', title: 'Behavioural feasible set: value alignment constraints on AI decision support', authors: 'T Park', venue: 'ARXIV', href: 'https://arxiv.org/abs/2603.21435' },
+    { year: '2025', title: 'Mapping the space of central bankers\u2019 ideas', authors: 'T Park · F Perez-Cruz · H S Shin', venue: 'BIS WP 1299', href: 'https://www.bis.org/publications/working-paper-1299-mapping-space-central-bankers-ideas' },
+    { year: '2025', title: 'Parsing the pulse: decomposing macroeconomic sentiment with LLMs', authors: 'B Kwon · T Park · P Rungcharoenkitkul · F Smets', venue: 'BIS WP 1294', href: 'https://www.bis.org/publications/working-paper-1294-parsing-pulse-decomposing-macroeconomic-sentiment-llms' },
+    { year: '2025', title: 'Harnessing artificial intelligence for monitoring financial markets', authors: 'M Aquilina · D Araujo · G Gelos · T Park · F Perez-Cruz', venue: 'BIS WP 1291', href: 'https://www.bis.org/publications/working-paper-1291-harnessing-artificial-intelligence-monitoring-financial-markets' },
+    { year: '2025', title: 'Leveraging corporate financial statements for policy insights', authors: 'D Elgg · T Park · O Sirello · B Tissot · J-M Vidal Pastor', venue: 'IFC BULLETIN 65', href: 'https://www.bis.org/2026-07/ifcb65_01_rh.pdf' },
+    { year: '2024', title: 'A primer on large language models for economists: structuring unstructured text data', authors: 'B Kwon · T Park · F Perez-Cruz · P Rungcharoenkitkul', venue: 'BIS QR · DEC', href: 'https://www.bis.org/publications/large-language-models-primer-economists' },
+    { year: '2024', title: 'CB-LMs: language models for central banking', authors: 'L Gambacorta · B Kwon · T Park · P Patelli · S Zhu', venue: 'J FIN STABILITY · FORTHCOMING', href: 'https://www.bis.org/publications/working-paper-1215-cb-lms-language-models-central-banking' },
+    { year: '2024', title: 'Enhancing anomaly detection in financial markets with an LLM-based multi-agent framework', authors: 'T Park', venue: 'ARXIV', href: 'https://arxiv.org/abs/2403.19735' },
+    { year: '2024', title: 'Improving greenhouse gas emissions data', authors: 'NGFS', venue: 'NGFS NOTE', href: 'https://www.ngfs.net/system/files/import/ngfs/medias/documents/ngfs_information_note_on_improving_ghg_emission_data.pdf' },
+    { year: '2024', title: 'The BIS Data Portal project \u2014 delivering the next-generation platform for BIS statistics', authors: 'E Lambe · T Park', venue: 'IFC BULLETIN 60', href: 'https://www.bis.org/ifc/publ/ifcb60_18_rh.pdf' },
+    { year: '2023', title: 'Commodity prices, the dollar, and stagflation risk', authors: 'B Hofmann · T Park · A Pierres Tejada', venue: 'BIS QR · MAR', href: 'https://www.bis.org/publications/commodity-prices-dollar-and-stagflation-risk' },
+    { year: '2021', title: 'A novel machine learning-based validation workflow for financial market time series', authors: 'M Erdem · T Park', venue: 'IFC BULLETIN 57', href: 'https://www.bis.org/ifc/publ/ifcb57_06_rh.pdf' },
+    { year: '2020', title: 'The broad dollar exchange rate as an EME risk factor', authors: 'B Hofmann · T Park', venue: 'BIS QR · DEC', href: 'https://www.bis.org/publications/broad-dollar-exchange-rate-eme-risk-factor' },
+    { year: '2017', title: 'Creating good conditions for innovation-driven productivity gains in Australia', authors: 'P Hemmings · T Park', venue: 'OECD WP 1390', href: 'https://doi.org/10.1787/bf77f9e1-en' },
+    { year: '2017', title: 'Boosting R&D outcomes in Australia', authors: 'V Koutsogeorgopoulou · T Park', venue: 'OECD WP 1391', href: 'https://doi.org/10.1787/93d19106-en' },
+    { year: '2016\u201317', title: 'OECD Economic Survey series (South Africa, Australia, Hungary, Norway)', authors: 'OECD', venue: 'OECD', href: 'https://www.oecd.org/en/topics/economic-surveys.html' },
+    { year: '2015', title: 'IEA Energy Efficiency Market Report 2015', authors: 'OECD/IEA', venue: 'IEA', href: 'https://www.iea.org/reports/energy-efficiency-market-report-2015' },
+    { year: '2014', title: 'IEA Energy Efficiency Market Report 2014', authors: 'OECD/IEA', venue: 'IEA', href: 'https://www.iea.org/reports/energy-efficiency-market-report-2014' },
+    { year: '2014', title: 'Energy Efficiency Indicators: essentials for policy making', authors: 'OECD/IEA', venue: 'IEA', href: 'https://www.iea.org/reports/energy-efficiency-indicators-essentials-for-policy-making' },
+    { year: '2014', title: 'Energy Efficiency Indicators: fundamentals on statistics', authors: 'OECD/IEA', venue: 'IEA', href: 'https://www.iea.org/reports/energy-efficiency-indicators-fundamentals-on-statistics' },
+    { year: '2013', title: 'IEA Energy Efficiency Market Report 2013', authors: 'OECD/IEA', venue: 'IEA', href: 'https://www.iea.org/reports/energy-efficiency-market-report-2013' },
+    { year: '2012', title: 'Global Tracking Framework', authors: 'UN Sustainable Energy for All', venue: 'UN SE4ALL', href: 'https://www.worldbank.org/en/topic/energy/publication/Global-Tracking-Framework-Report' }
+  ];
+  resVals() {
+    const per = 5, pages = [];
+    for (let k = 0; k < this.papers.length; k += per) pages.push(this.papers.slice(k, k + per));
+    const n = pages.length, i = ((this.state.res ?? 0) % n + n) % n;
+    return {
+      resPages: pages,
+      resTransform: `translateX(-${i * 100}%)`,
+      resCounter: `${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}`,
+      resPrev: () => this.setState({ res: i - 1 }),
+      resNext: () => this.setState({ res: i + 1 })
+    };
+  }
+  posts = [
+    { slug: 'fig-01', meta: 'COMING SOON', title: 'Figure 01 — to be published', desc: 'Placeholder. A chart and its one-line caption will appear here.', embed: './viz/viz-demo.html' },
+    { slug: 'fig-02', meta: 'COMING SOON', title: 'Figure 02 — to be published', desc: 'Placeholder. A chart and its one-line caption will appear here.' },
+    { slug: 'fig-03', meta: 'COMING SOON', title: 'Figure 03 — to be published', desc: 'Placeholder. A chart and its one-line caption will appear here.' },
+    { slug: 'fig-04', meta: 'COMING SOON', title: 'Figure 04 — to be published', desc: 'Placeholder. A chart and its one-line caption will appear here.' }
+  ];
+  renderVals() {
+    const t = this.getTheme();
+    return {
+      themeLabel: t === 'dark' ? '● dark' : '○ light',
+      toggleTheme: () => {
+        const next = t === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('site-theme', next);
+        this.setState({ theme: next });
+      },
+      ...this.vizVals(),
+      cvOpen: this.state.cvOpen,
+      openCv: () => this.setState({ cvOpen: true }),
+      closeCv: () => this.setState({ cvOpen: false }),
+      stopClick: (e) => e.stopPropagation(),
+      cvFull: [
+        { years: '2022 —', role: 'Head of Financial Markets and Research Support', org: 'Bank for International Settlements, Basel' },
+        { years: '2017 — 22', role: 'Senior/Principal Data Scientist', org: 'Bank for International Settlements, Basel & Hong Kong SAR' },
+        { years: '2015 — 17', role: 'Economic Statistician', org: 'Organisation for Economic Co-operation and Development, Paris' },
+        { years: '2012 — 15', role: 'Energy Statistician', org: 'International Energy Agency, Paris' }
+      ],
+      education: [
+        { years: '', degree: 'PhD in Economics (expected)', school: 'ESCP Business School', loc: 'Berlin, DE' },
+        { years: '2012', degree: 'Masters in Management', school: 'ESCP Business School', loc: 'Paris, FR' },
+        { years: '2011', degree: 'Master of Professional Accounting', school: 'The Univ. of Texas at Austin', loc: 'Austin, US' },
+        { years: '2008', degree: 'Bachelor of Arts in Economics', school: 'Seoul National University', loc: 'Seoul, KR' }
+      ],
+      cv: [
+        { years: '2017 —', org: 'Bank for International Settlements (BIS)', loc: 'Basel & Hong Kong' },
+        { years: '2015 — 17', org: 'Organisation for Economic Co-operation and Development (OECD)', loc: 'Paris, FR' },
+        { years: '2012 — 15', org: 'International Energy Agency (IEA)', loc: 'Paris, FR' }
+      ],
+      ...this.resVals(),
+      posts: this.posts,
+      repos: [
+        { name: 'macro-sentiment', desc: 'Data — LLM-decomposed macroeconomic sentiment indices from “Parsing the pulse” (BIS WP 1294).', href: 'https://www.bis.org/publications/working-paper-1294-parsing-pulse-decomposing-macroeconomic-sentiment-llms' },
+        { name: 'cb-lms', desc: 'Model — central bank language models retrained on central banking corpora (BIS WP 1215).', href: 'https://www.bis.org/publications/working-paper-1215-cb-lms-language-models-central-banking' },
+        { name: 'speech-map', desc: 'Dashboard — mapping the space of central bankers’ ideas across speeches (BIS WP 1299).', href: 'https://www.bis.org/publications/working-paper-1299-mapping-space-central-bankers-ideas' }
+      ]
+    };
+  }
+}
+</script>
 </body>
 </html>
