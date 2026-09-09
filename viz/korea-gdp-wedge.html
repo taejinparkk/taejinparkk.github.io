@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Korea's GDP wedge, 1961–2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#141413;--ink:#ececea;--mut:#8f8f88;--faint:#6e6e68;--line:rgba(236,236,234,.16);--acc:#8fb3de}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+header{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:10px 20px 2px;flex-wrap:wrap}
+h1{margin:0;font:500 18px/1.4 'IBM Plex Sans',sans-serif}
+.meta{font:400 12.5px 'IBM Plex Mono',monospace;color:var(--faint)}
+.hgroup{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+.actions{display:flex;gap:6px}
+.pill{background:none;border:1px solid var(--line);border-radius:12px;padding:3px 11px;cursor:pointer;font:400 12.5px 'IBM Plex Mono',monospace;color:var(--acc)}
+.pill:hover{border-color:var(--mut);color:var(--ink)}
+#stage{flex:1;position:relative;min-height:0}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+#tip{position:absolute;pointer-events:none;background:#1e1e1c;border:1px solid var(--line);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.4);padding:10px 13px;font:400 13px 'IBM Plex Mono',monospace;color:var(--mut);display:none;min-width:170px;z-index:5}
+#tip .d{color:var(--ink);font-weight:500;margin-bottom:5px}
+#tip .row{display:flex;align-items:center;gap:7px;margin-top:3px}
+#tip .row b{color:var(--ink);font-weight:500;min-width:52px;text-align:right}
+#tip .k{display:inline-block;width:12px;height:0;border-top:2px solid #fff;border-radius:1px;flex:none}
+#tableview{position:absolute;inset:0;background:var(--bg);display:none;overflow:auto;font:400 12.5px 'IBM Plex Mono',monospace}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:4px 10px;border-bottom:1px solid rgba(236,236,234,.08);white-space:nowrap}
+th{position:sticky;top:0;z-index:2;background:var(--bg);color:var(--faint);font-weight:400;border-bottom:1px solid var(--line)}
+td:first-child,th:first-child{text-align:left;color:var(--mut)}
+footer{padding:6px 20px 12px;font:400 11.5px 'IBM Plex Mono',monospace;color:var(--faint)}
+footer a{color:var(--acc);text-decoration:none}
+footer a:hover{color:var(--ink)}
+.rec header,.rec .bar,.rec footer{display:none}
+.rec #stage{position:fixed;inset:0}
+.rec canvas{inset:auto;left:50%;top:50%;transform:translate(-50%,-50%);width:min(100vw,177.8vh);height:auto}
+</style></head><body>
+<header>
+<div class="hgroup">
+<h1>Korea: nominal and real GDP growth</h1>
+<span class="meta">BANK OF KOREA · YoY · 1961 Q1 – 2026 Q2</span>
+</div>
+<div class="actions">
+<button class="pill" id="btnTable" aria-pressed="false">view data table</button>
+<button class="pill" id="btnSkip">⏭ skip to reveal</button>
+<button class="pill" id="btnReplay" style="display:none">↺ replay</button>
+</div>
+</header>
+<div id="stage" role="img" aria-label="Animated chart of Korean year-on-year nominal and real GDP growth from 1961 to 2026. For decades the two lines run close together, with their gap shrinking from the high-inflation 1970s to nearly nothing in the 2010s. In 2026 the lines tear apart: nominal growth reaches 26 percent while real growth stays near 4 percent. The gap then decomposes into price contributions, showing that the 1970s wedge came from domestic inflation while the 2026 wedge comes almost entirely from external prices, the export price boom in semiconductors. Use the data table for exact values.">
+<canvas id="c" aria-hidden="true"></canvas>
+<div id="tip"></div>
+</div>
+<div id="tableview" aria-label="Quarterly data table"></div>
+<footer>Gap = nominal − real YoY growth, decomposed into share-weighted component deflator contributions · domestic = consumption + investment · external = exports − imports (terms of trade) · hatched bands below the real line = negative contributions, prices pulling nominal growth down · Data: <a href="https://ecos.bok.or.kr" target="_blank" rel="noopener">Bank of Korea, ECOS</a> (2.1.2.2.3 / 2.1.2.2.4) · Published September 2026</footer>
+<script>
+'use strict';
+const ALL=[{"t":"1961Q1","nom":26.5,"real":6.32,"dom":32.69,"ext":-6.7,"resid":-5.81},{"t":"1961Q2","nom":22.41,"real":7.15,"dom":17.75,"ext":-5.87,"resid":3.37},{"t":"1961Q3","nom":15.76,"real":4.75,"dom":12.05,"ext":-2.83,"resid":1.79},{"t":"1961Q4","nom":19.67,"real":8.95,"dom":14.79,"ext":-3.37,"resid":-0.7},{"t":"1962Q1","nom":17.42,"real":6.31,"dom":11.17,"ext":-0.5,"resid":0.44},{"t":"1962Q2","nom":19.5,"real":-1.56,"dom":20.55,"ext":-0.61,"resid":1.13},{"t":"1962Q3","nom":20,"real":7.19,"dom":11.59,"ext":0.27,"resid":0.96},{"t":"1962Q4","nom":26.99,"real":4.49,"dom":21.29,"ext":0.48,"resid":0.72},{"t":"1963Q1","nom":34.43,"real":10.14,"dom":32.53,"ext":-1.18,"resid":-7.06},{"t":"1963Q2","nom":35.94,"real":8.69,"dom":28.83,"ext":-0.69,"resid":-0.88},{"t":"1963Q3","nom":46.64,"real":9.69,"dom":40.43,"ext":0.73,"resid":-4.2},{"t":"1963Q4","nom":48.18,"real":7.85,"dom":40.1,"ext":0.87,"resid":-0.63},{"t":"1964Q1","nom":31.55,"real":4.66,"dom":38.08,"ext":-2.33,"resid":-8.87},{"t":"1964Q2","nom":46.8,"real":5.7,"dom":46.21,"ext":-4.02,"resid":-1.08},{"t":"1964Q3","nom":45.27,"real":8.09,"dom":40.17,"ext":-6.13,"resid":3.14},{"t":"1964Q4","nom":44.03,"real":17.59,"dom":33.08,"ext":-5.37,"resid":-1.27},{"t":"1965Q1","nom":26.55,"real":8.25,"dom":14.62,"ext":-2.57,"resid":6.25},{"t":"1965Q2","nom":14.99,"real":13.69,"dom":2.75,"ext":-0.75,"resid":-0.7},{"t":"1965Q3","nom":11.81,"real":7.41,"dom":5.53,"ext":-0.19,"resid":-0.94},{"t":"1965Q4","nom":3.32,"real":1.63,"dom":3.44,"ext":-0.24,"resid":-1.51},{"t":"1966Q1","nom":22.38,"real":8.15,"dom":13.5,"ext":-2.07,"resid":2.8},{"t":"1966Q2","nom":29.65,"real":13.82,"dom":15.54,"ext":-1.33,"resid":1.61},{"t":"1966Q3","nom":34.66,"real":15.85,"dom":21.71,"ext":-0.92,"resid":-1.98},{"t":"1966Q4","nom":25.72,"real":10.38,"dom":16.93,"ext":-1.01,"resid":-0.57},{"t":"1967Q1","nom":23.5,"real":9.52,"dom":13.63,"ext":-0.82,"resid":1.16},{"t":"1967Q2","nom":20.08,"real":5.14,"dom":15.8,"ext":0.54,"resid":-1.41},{"t":"1967Q3","nom":24.96,"real":14.07,"dom":12.12,"ext":-0.59,"resid":-0.64},{"t":"1967Q4","nom":24.94,"real":8.38,"dom":17.69,"ext":-0.58,"resid":-0.55},{"t":"1968Q1","nom":35.27,"real":13.53,"dom":28.24,"ext":-0.28,"resid":-6.22},{"t":"1968Q2","nom":31.02,"real":13.61,"dom":14.3,"ext":-0.69,"resid":3.81},{"t":"1968Q3","nom":28.65,"real":15.85,"dom":12.97,"ext":-0.83,"resid":0.66},{"t":"1968Q4","nom":22.8,"real":10.37,"dom":13.84,"ext":-0.45,"resid":-0.97},{"t":"1969Q1","nom":19.67,"real":9.13,"dom":10.47,"ext":-0.09,"resid":0.15},{"t":"1969Q2","nom":22.62,"real":12.68,"dom":10,"ext":-0.59,"resid":0.53},{"t":"1969Q3","nom":36.7,"real":14.26,"dom":23.37,"ext":-0.78,"resid":-0.14},{"t":"1969Q4","nom":41.39,"real":20.87,"dom":23.96,"ext":-1.47,"resid":-1.97},{"t":"1970Q1","nom":35.52,"real":10.63,"dom":25.32,"ext":0.16,"resid":-0.6},{"t":"1970Q2","nom":25.68,"real":13.86,"dom":12.25,"ext":-0.13,"resid":-0.29},{"t":"1970Q3","nom":22.52,"real":4.91,"dom":19.96,"ext":-1.73,"resid":-0.62},{"t":"1970Q4","nom":25.15,"real":11.3,"dom":17.62,"ext":-3.66,"resid":-0.11},{"t":"1971Q1","nom":25.8,"real":12.91,"dom":14.81,"ext":-0.88,"resid":-1.04},{"t":"1971Q2","nom":28.74,"real":13.32,"dom":16.58,"ext":-1.52,"resid":0.36},{"t":"1971Q3","nom":21.34,"real":11.46,"dom":13.04,"ext":-3.42,"resid":0.26},{"t":"1971Q4","nom":17.99,"real":6.14,"dom":11.67,"ext":-0.74,"resid":0.91},{"t":"1972Q1","nom":19.47,"real":5.63,"dom":16.85,"ext":-2.41,"resid":-0.61},{"t":"1972Q2","nom":22.71,"real":5.33,"dom":18.08,"ext":-1.06,"resid":0.38},{"t":"1972Q3","nom":25.14,"real":6.5,"dom":18.37,"ext":-0.54,"resid":0.81},{"t":"1972Q4","nom":28.52,"real":11.15,"dom":17.15,"ext":-0.49,"resid":0.7},{"t":"1973Q1","nom":29.76,"real":12.81,"dom":13.85,"ext":0.9,"resid":2.2},{"t":"1973Q2","nom":25.88,"real":13.61,"dom":14.57,"ext":-1.94,"resid":-0.35},{"t":"1973Q3","nom":31.81,"real":18.31,"dom":15.51,"ext":-1.25,"resid":-0.76},{"t":"1973Q4","nom":31.46,"real":14.96,"dom":18.56,"ext":-1.82,"resid":-0.25},{"t":"1974Q1","nom":49,"real":15.66,"dom":35.22,"ext":-6.63,"resid":4.74},{"t":"1974Q2","nom":43.44,"real":10.94,"dom":40.35,"ext":-7.77,"resid":-0.09},{"t":"1974Q3","nom":37.52,"real":7.84,"dom":38.34,"ext":-8.39,"resid":-0.27},{"t":"1974Q4","nom":44.92,"real":5.88,"dom":47.84,"ext":-7.19,"resid":-1.61},{"t":"1975Q1","nom":29.8,"real":2.24,"dom":39.93,"ext":-12,"resid":-0.37},{"t":"1975Q2","nom":36.61,"real":6.66,"dom":34.75,"ext":-4.82,"resid":0.02},{"t":"1975Q3","nom":34.21,"real":8.28,"dom":27.64,"ext":-2.25,"resid":0.54},{"t":"1975Q4","nom":32.02,"real":13.1,"dom":18.91,"ext":1.38,"resid":-1.38},{"t":"1976Q1","nom":39.77,"real":12.38,"dom":24.45,"ext":4.68,"resid":-1.74},{"t":"1976Q2","nom":38.1,"real":14.58,"dom":18.88,"ext":4.24,"resid":0.4},{"t":"1976Q3","nom":38.89,"real":13.61,"dom":21,"ext":4.39,"resid":-0.11},{"t":"1976Q4","nom":33.5,"real":12.47,"dom":18.87,"ext":1.29,"resid":0.87},{"t":"1977Q1","nom":27.31,"real":9.26,"dom":17.52,"ext":1.82,"resid":-1.29},{"t":"1977Q2","nom":22.6,"real":8.98,"dom":12.75,"ext":0.07,"resid":0.79},{"t":"1977Q3","nom":28.68,"real":13.53,"dom":15.13,"ext":0.4,"resid":-0.38},{"t":"1977Q4","nom":35.02,"real":16.47,"dom":16.18,"ext":2.3,"resid":0.07},{"t":"1978Q1","nom":34.79,"real":15.19,"dom":19.15,"ext":0.08,"resid":0.37},{"t":"1978Q2","nom":35.29,"real":13.14,"dom":20.85,"ext":0.99,"resid":0.32},{"t":"1978Q3","nom":37.34,"real":9.9,"dom":26.79,"ext":0.21,"resid":0.43},{"t":"1978Q4","nom":33.64,"real":7.7,"dom":25.73,"ext":-0.1,"resid":0.31},{"t":"1979Q1","nom":37.7,"real":14.87,"dom":23.39,"ext":-0.06,"resid":-0.5},{"t":"1979Q2","nom":30.03,"real":11.61,"dom":21.03,"ext":-2.64,"resid":0.04},{"t":"1979Q3","nom":27.7,"real":7.72,"dom":21.55,"ext":-1.69,"resid":0.11},{"t":"1979Q4","nom":23.27,"real":2.92,"dom":23.42,"ext":-3.25,"resid":0.17},{"t":"1980Q1","nom":24.84,"real":0.21,"dom":32.94,"ext":-8.39,"resid":0.08},{"t":"1980Q2","nom":21.92,"real":-3.42,"dom":29.81,"ext":-5.01,"resid":0.54},{"t":"1980Q3","nom":23.74,"real":2.43,"dom":28.24,"ext":-6.78,"resid":-0.15},{"t":"1980Q4","nom":20.8,"real":-4.55,"dom":31.02,"ext":-5.75,"resid":0.08},{"t":"1981Q1","nom":24.6,"real":3.93,"dom":25.11,"ext":-4.57,"resid":0.12},{"t":"1981Q2","nom":24.83,"real":4.11,"dom":24.03,"ext":-3.4,"resid":0.1},{"t":"1981Q3","nom":25.39,"real":8.06,"dom":18.13,"ext":-0.6,"resid":-0.19},{"t":"1981Q4","nom":25.64,"real":12.65,"dom":15.15,"ext":-1.95,"resid":-0.2},{"t":"1982Q1","nom":20.47,"real":9.18,"dom":9.5,"ext":1.82,"resid":-0.03},{"t":"1982Q2","nom":15.06,"real":8.77,"dom":4.93,"ext":1.49,"resid":-0.13},{"t":"1982Q3","nom":14.27,"real":8.28,"dom":5.77,"ext":0.22,"resid":0},{"t":"1982Q4","nom":13.33,"real":7.84,"dom":5.34,"ext":0.35,"resid":-0.21},{"t":"1983Q1","nom":20.57,"real":13.79,"dom":6.86,"ext":-0.94,"resid":0.86},{"t":"1983Q2","nom":17.25,"real":13.44,"dom":2.79,"ext":0.96,"resid":0.06},{"t":"1983Q3","nom":20.89,"real":16.11,"dom":3.6,"ext":1.38,"resid":-0.2},{"t":"1983Q4","nom":17.55,"real":10.88,"dom":5.34,"ext":1.26,"resid":0.07},{"t":"1984Q1","nom":15.91,"real":13.9,"dom":-0.02,"ext":1.56,"resid":0.48},{"t":"1984Q2","nom":15.83,"real":12.31,"dom":3.98,"ext":-0.39,"resid":-0.06},{"t":"1984Q3","nom":16.52,"real":9.62,"dom":7.41,"ext":-0.63,"resid":0.11},{"t":"1984Q4","nom":14.4,"real":7.59,"dom":5.35,"ext":1.13,"resid":0.34},{"t":"1985Q1","nom":11.58,"real":7.6,"dom":4.1,"ext":0.06,"resid":-0.18},{"t":"1985Q2","nom":11.31,"real":6.82,"dom":4.75,"ext":-0.07,"resid":-0.2},{"t":"1985Q3","nom":11.74,"real":7.36,"dom":4.84,"ext":-0.25,"resid":-0.21},{"t":"1985Q4","nom":14.31,"real":9.79,"dom":5.06,"ext":-0.36,"resid":-0.18},{"t":"1986Q1","nom":17.28,"real":9.23,"dom":7.57,"ext":0.19,"resid":0.29},{"t":"1986Q2","nom":16.27,"real":10.28,"dom":3.3,"ext":2.42,"resid":0.27},{"t":"1986Q3","nom":16.98,"real":14.13,"dom":-0.61,"ext":3.55,"resid":-0.09},{"t":"1986Q4","nom":17.94,"real":11.98,"dom":2.63,"ext":3.48,"resid":-0.15},{"t":"1987Q1","nom":17.96,"real":15.12,"dom":-0.64,"ext":3.19,"resid":0.28},{"t":"1987Q2","nom":19.26,"real":15.44,"dom":2.93,"ext":0.83,"resid":0.06},{"t":"1987Q3","nom":16.54,"real":10.92,"dom":4.81,"ext":0.82,"resid":0},{"t":"1987Q4","nom":19.86,"real":10.77,"dom":8.66,"ext":0.33,"resid":0.09},{"t":"1988Q1","nom":24.25,"real":16.78,"dom":7.89,"ext":-0.41,"resid":0},{"t":"1988Q2","nom":17.55,"real":8.5,"dom":8.38,"ext":0.8,"resid":-0.13},{"t":"1988Q3","nom":19.32,"real":10.71,"dom":7.04,"ext":1.59,"resid":-0.02},{"t":"1988Q4","nom":19.54,"real":13.04,"dom":5.07,"ext":1.2,"resid":0.24},{"t":"1989Q1","nom":12.8,"real":5.09,"dom":7.3,"ext":0.75,"resid":-0.33},{"t":"1989Q2","nom":14.12,"real":7.95,"dom":5.04,"ext":1.2,"resid":-0.07},{"t":"1989Q3","nom":12.52,"real":7.01,"dom":4.26,"ext":1.29,"resid":-0.04},{"t":"1989Q4","nom":14.72,"real":8.37,"dom":4.68,"ext":1.1,"resid":0.57},{"t":"1990Q1","nom":19.01,"real":10.2,"dom":8.88,"ext":0.03,"resid":-0.09},{"t":"1990Q2","nom":21.82,"real":11.02,"dom":10.89,"ext":-0.09,"resid":0.01},{"t":"1990Q3","nom":24.38,"real":10.67,"dom":13.72,"ext":0.01,"resid":-0.02},{"t":"1990Q4","nom":19.14,"real":8.41,"dom":13,"ext":-2.33,"resid":0.06},{"t":"1991Q1","nom":21.59,"real":11.46,"dom":11.86,"ext":-1.88,"resid":0.15},{"t":"1991Q2","nom":21.95,"real":11.91,"dom":10.66,"ext":-0.55,"resid":-0.07},{"t":"1991Q3","nom":19.16,"real":9.81,"dom":9.45,"ext":-0.02,"resid":-0.07},{"t":"1991Q4","nom":21.16,"real":10.47,"dom":8.48,"ext":2.31,"resid":-0.09},{"t":"1992Q1","nom":17.75,"real":8.77,"dom":7.89,"ext":1.48,"resid":-0.4},{"t":"1992Q2","nom":16.83,"real":7.86,"dom":8.77,"ext":0.06,"resid":0.14},{"t":"1992Q3","nom":13.51,"real":5.06,"dom":9.14,"ext":-0.88,"resid":0.19},{"t":"1992Q4","nom":11.09,"real":4.16,"dom":7.37,"ext":-0.56,"resid":0.13},{"t":"1993Q1","nom":12.3,"real":5.18,"dom":7.49,"ext":-0.3,"resid":-0.07},{"t":"1993Q2","nom":13.2,"real":6.6,"dom":6.85,"ext":-0.39,"resid":0.14},{"t":"1993Q3","nom":14.25,"real":8,"dom":5.58,"ext":0.61,"resid":0.07},{"t":"1993Q4","nom":14.79,"real":8.02,"dom":5.33,"ext":1.34,"resid":0.1},{"t":"1994Q1","nom":18.27,"real":9.8,"dom":7.85,"ext":0.84,"resid":-0.21},{"t":"1994Q2","nom":16.96,"real":8.74,"dom":7.63,"ext":0.66,"resid":-0.07},{"t":"1994Q3","nom":18.12,"real":8.44,"dom":9.72,"ext":-0.04,"resid":0},{"t":"1994Q4","nom":19.45,"real":10.47,"dom":9.51,"ext":-0.61,"resid":0.07},{"t":"1995Q1","nom":17.43,"real":9.78,"dom":8.76,"ext":-0.87,"resid":-0.24},{"t":"1995Q2","nom":18.59,"real":10.15,"dom":8.91,"ext":-0.62,"resid":0.14},{"t":"1995Q3","nom":19.18,"real":10.81,"dom":8.93,"ext":-0.68,"resid":0.11},{"t":"1995Q4","nom":14.83,"real":8.33,"dom":7.12,"ext":-0.73,"resid":0.11},{"t":"1996Q1","nom":14.72,"real":8.17,"dom":7.95,"ext":-1.27,"resid":-0.12},{"t":"1996Q2","nom":11.81,"real":8.18,"dom":4.1,"ext":-0.39,"resid":-0.07},{"t":"1996Q3","nom":10.72,"real":8.01,"dom":3.72,"ext":-0.96,"resid":-0.06},{"t":"1996Q4","nom":12.23,"real":7.65,"dom":6.74,"ext":-2.27,"resid":0.1},{"t":"1997Q1","nom":8.88,"real":6.08,"dom":4.87,"ext":-1.88,"resid":-0.18},{"t":"1997Q2","nom":10.22,"real":7.78,"dom":4.3,"ext":-2.08,"resid":0.21},{"t":"1997Q3","nom":10.31,"real":7,"dom":5.12,"ext":-1.96,"resid":0.15},{"t":"1997Q4","nom":11.9,"real":4.38,"dom":8.63,"ext":-1.17,"resid":0.07},{"t":"1998Q1","nom":7.26,"real":-2.87,"dom":7.9,"ext":2.59,"resid":-0.37},{"t":"1998Q2","nom":-1.16,"real":-7.11,"dom":6.13,"ext":-0.58,"resid":0.41},{"t":"1998Q3","nom":-2.92,"real":-6.16,"dom":3.25,"ext":0.43,"resid":-0.45},{"t":"1998Q4","nom":-4.69,"real":-3.47,"dom":-0.68,"ext":-1.17,"resid":0.64},{"t":"1999Q1","nom":2.13,"real":7.29,"dom":-1.87,"ext":-2.5,"resid":-0.79},{"t":"1999Q2","nom":8.86,"real":12.4,"dom":-2.46,"ext":-1.04,"resid":-0.05},{"t":"1999Q3","nom":13.49,"real":13,"dom":2.68,"ext":-2.69,"resid":0.51},{"t":"1999Q4","nom":15.52,"real":13.39,"dom":3.66,"ext":-2.1,"resid":0.58},{"t":"2000Q1","nom":13.89,"real":12.65,"dom":5.2,"ext":-3.35,"resid":-0.6},{"t":"2000Q2","nom":11.75,"real":9.23,"dom":5.99,"ext":-3.42,"resid":-0.04},{"t":"2000Q3","nom":8.93,"real":9.32,"dom":1.41,"ext":-1.47,"resid":-0.33},{"t":"2000Q4","nom":7.03,"real":6.19,"dom":3.98,"ext":-3,"resid":-0.15},{"t":"2001Q1","nom":8.49,"real":5.01,"dom":4.6,"ext":-0.82,"resid":-0.29},{"t":"2001Q2","nom":9.86,"real":4.9,"dom":5.64,"ext":-0.78,"resid":0.1},{"t":"2001Q3","nom":8.12,"real":3.4,"dom":6,"ext":-1.34,"resid":0.05},{"t":"2001Q4","nom":7.36,"real":5.6,"dom":1.92,"ext":-0.17,"resid":0.02},{"t":"2002Q1","nom":10.38,"real":7.36,"dom":2.46,"ext":0.65,"resid":-0.09},{"t":"2002Q2","nom":10.57,"real":7.52,"dom":2.91,"ext":0.49,"resid":-0.36},{"t":"2002Q3","nom":9.77,"real":8.09,"dom":0.86,"ext":0.88,"resid":-0.06},{"t":"2002Q4","nom":13.11,"real":7.96,"dom":4.79,"ext":0.38,"resid":-0.02},{"t":"2003Q1","nom":7.66,"real":4.09,"dom":5.36,"ext":-1.75,"resid":-0.04},{"t":"2003Q2","nom":5.61,"real":2.26,"dom":3.52,"ext":-0.42,"resid":0.25},{"t":"2003Q3","nom":6.1,"real":1.96,"dom":4.51,"ext":-0.2,"resid":-0.17},{"t":"2003Q4","nom":7.63,"real":4.01,"dom":3.24,"ext":0.52,"resid":-0.14},{"t":"2004Q1","nom":8.63,"real":5.72,"dom":3.33,"ext":-0.24,"resid":-0.19},{"t":"2004Q2","nom":9.69,"real":6.63,"dom":3.95,"ext":-1,"resid":0.12},{"t":"2004Q3","nom":9.62,"real":5.19,"dom":5.41,"ext":-1,"resid":0.02},{"t":"2004Q4","nom":6.69,"real":3.38,"dom":4.4,"ext":-1.32,"resid":0.23},{"t":"2005Q1","nom":5.19,"real":3.11,"dom":2.03,"ext":-0.08,"resid":0.14},{"t":"2005Q2","nom":4.77,"real":3.94,"dom":1.78,"ext":-0.8,"resid":-0.15},{"t":"2005Q3","nom":5.98,"real":5.01,"dom":2.67,"ext":-1.54,"resid":-0.16},{"t":"2005Q4","nom":6.17,"real":5.26,"dom":3.38,"ext":-2.41,"resid":-0.05},{"t":"2006Q1","nom":5.59,"real":6.33,"dom":2.14,"ext":-2.75,"resid":-0.13},{"t":"2006Q2","nom":4.69,"real":4.93,"dom":2.06,"ext":-2.21,"resid":-0.08},{"t":"2006Q3","nom":5.29,"real":5.06,"dom":1.73,"ext":-1.41,"resid":-0.09},{"t":"2006Q4","nom":4.77,"real":4.77,"dom":0.5,"ext":-0.73,"resid":0.23},{"t":"2007Q1","nom":6.87,"real":4.99,"dom":1.79,"ext":0.18,"resid":-0.09},{"t":"2007Q2","nom":8.88,"real":5.9,"dom":2.97,"ext":0.12,"resid":-0.11},{"t":"2007Q3","nom":8.17,"real":5.53,"dom":2.34,"ext":0.33,"resid":-0.03},{"t":"2007Q4","nom":9.91,"real":6.84,"dom":4.68,"ext":-1.69,"resid":0.09},{"t":"2008Q1","nom":7.66,"real":5.85,"dom":4.09,"ext":-2.36,"resid":0.09},{"t":"2008Q2","nom":7.95,"real":4.42,"dom":6.45,"ext":-2.9,"resid":-0.02},{"t":"2008Q3","nom":7.11,"real":3.96,"dom":7.84,"ext":-4.82,"resid":0.13},{"t":"2008Q4","nom":1.86,"real":-1.7,"dom":4.98,"ext":-1.48,"resid":0.05},{"t":"2009Q1","nom":2.47,"real":-2.08,"dom":4.81,"ext":0.15,"resid":-0.41},{"t":"2009Q2","nom":2.8,"real":-1.28,"dom":1.05,"ext":2.79,"resid":0.25},{"t":"2009Q3","nom":4.54,"real":1.06,"dom":0.45,"ext":2.51,"resid":0.51},{"t":"2009Q4","nom":7.37,"real":5.39,"dom":0.86,"ext":2.99,"resid":-1.86},{"t":"2010Q1","nom":10.93,"real":7.86,"dom":0.74,"ext":2.23,"resid":0.1},{"t":"2010Q2","nom":10.82,"real":8.11,"dom":3.47,"ext":-0.89,"resid":0.12},{"t":"2010Q3","nom":8.41,"real":5.77,"dom":2.28,"ext":0.47,"resid":-0.1},{"t":"2010Q4","nom":9.55,"real":6.32,"dom":3.7,"ext":-0.38,"resid":-0.08},{"t":"2011Q1","nom":6.61,"real":5.4,"dom":3.91,"ext":-2.82,"resid":0.11},{"t":"2011Q2","nom":4.32,"real":3.84,"dom":3.47,"ext":-2.84,"resid":-0.15},{"t":"2011Q3","nom":4.5,"real":3.11,"dom":3.71,"ext":-2.46,"resid":0.15},{"t":"2011Q4","nom":4.74,"real":2.57,"dom":3.81,"ext":-1.55,"resid":-0.1},{"t":"2012Q1","nom":5.22,"real":2.53,"dom":2.94,"ext":-0.16,"resid":-0.09},{"t":"2012Q2","nom":4.46,"real":2.56,"dom":2.47,"ext":-0.66,"resid":0.1},{"t":"2012Q3","nom":3.62,"real":2.45,"dom":0.76,"ext":0.43,"resid":-0.03},{"t":"2012Q4","nom":2.36,"real":2.65,"dom":-0.34,"ext":0.19,"resid":-0.13},{"t":"2013Q1","nom":3.24,"real":2.33,"dom":0.53,"ext":0.72,"resid":-0.34},{"t":"2013Q2","nom":4.27,"real":3.05,"dom":-0.16,"ext":1.33,"resid":0.06},{"t":"2013Q3","nom":5.19,"real":3.69,"dom":0.99,"ext":0.56,"resid":-0.05},{"t":"2013Q4","nom":4.84,"real":4.02,"dom":0.21,"ext":0.49,"resid":0.12},{"t":"2014Q1","nom":5.25,"real":3.78,"dom":0.91,"ext":0.72,"resid":-0.16},{"t":"2014Q2","nom":4.41,"real":3.58,"dom":1.17,"ext":-0.38,"resid":0.03},{"t":"2014Q3","nom":3.74,"real":2.97,"dom":1.41,"ext":-0.6,"resid":-0.04},{"t":"2014Q4","nom":3.88,"real":2.59,"dom":0.51,"ext":0.74,"resid":0.04},{"t":"2015Q1","nom":5.77,"real":2.66,"dom":0,"ext":3.13,"resid":-0.02},{"t":"2015Q2","nom":5.9,"real":1.93,"dom":0.58,"ext":3.21,"resid":0.18},{"t":"2015Q3","nom":7.05,"real":3.46,"dom":-0.01,"ext":3.57,"resid":0.02},{"t":"2015Q4","nom":6.23,"real":3.59,"dom":-0.05,"ext":2.56,"resid":0.13},{"t":"2016Q1","nom":5.14,"real":3,"dom":0.36,"ext":2.19,"resid":-0.41},{"t":"2016Q2","nom":5.94,"real":3.85,"dom":0.96,"ext":0.95,"resid":0.18},{"t":"2016Q3","nom":4.79,"real":3,"dom":1.77,"ext":0,"resid":0.02},{"t":"2016Q4","nom":5.33,"real":2.85,"dom":1.63,"ext":0.84,"resid":0.01},{"t":"2017Q1","nom":4.9,"real":3.46,"dom":2.13,"ext":-0.69,"resid":0},{"t":"2017Q2","nom":4.44,"real":3.01,"dom":1.4,"ext":0,"resid":0.04},{"t":"2017Q3","nom":7.68,"real":4.1,"dom":2.53,"ext":1.1,"resid":-0.04},{"t":"2017Q4","nom":5.03,"real":3.17,"dom":2.16,"ext":-0.45,"resid":0.14},{"t":"2018Q1","nom":4.24,"real":3.2,"dom":1.24,"ext":-0.26,"resid":0.06},{"t":"2018Q2","nom":4.46,"real":3.34,"dom":1.67,"ext":-0.69,"resid":0.14},{"t":"2018Q3","nom":2.81,"real":2.6,"dom":1.66,"ext":-1.57,"resid":0.12},{"t":"2018Q4","nom":3.6,"real":3.55,"dom":1.83,"ext":-1.62,"resid":-0.16},{"t":"2019Q1","nom":1.46,"real":1.87,"dom":1.34,"ext":-1.77,"resid":0.02},{"t":"2019Q2","nom":1.92,"real":2.38,"dom":1.92,"ext":-2.35,"resid":-0.04},{"t":"2019Q3","nom":1.07,"real":2.22,"dom":1.32,"ext":-2.47,"resid":-0.01},{"t":"2019Q4","nom":2.24,"real":2.74,"dom":1.42,"ext":-1.96,"resid":0.04},{"t":"2020Q1","nom":1.09,"real":1.19,"dom":1.45,"ext":-1.57,"resid":0.02},{"t":"2020Q2","nom":-1.13,"real":-2.64,"dom":0.69,"ext":0.96,"resid":-0.14},{"t":"2020Q3","nom":1.55,"real":-0.82,"dom":1.08,"ext":1.33,"resid":-0.05},{"t":"2020Q4","nom":1.96,"real":-0.45,"dom":0.96,"ext":1.47,"resid":-0.02},{"t":"2021Q1","nom":5.56,"real":2.72,"dom":1.7,"ext":1.08,"resid":0.06},{"t":"2021Q2","nom":9.13,"real":6.95,"dom":3.25,"ext":-1.04,"resid":-0.02},{"t":"2021Q3","nom":8.28,"real":4.61,"dom":4.26,"ext":-0.75,"resid":0.15},{"t":"2021Q4","nom":8.99,"real":4.49,"dom":6.25,"ext":-1.93,"resid":0.18},{"t":"2022Q1","nom":7.73,"real":3.62,"dom":6.34,"ext":-2.49,"resid":0.26},{"t":"2022Q2","nom":6.19,"real":3.28,"dom":5.86,"ext":-3.05,"resid":0.1},{"t":"2022Q3","nom":3.61,"real":3.66,"dom":5.15,"ext":-5.16,"resid":-0.04},{"t":"2022Q4","nom":1.7,"real":1.22,"dom":3.9,"ext":-3.22,"resid":-0.2},{"t":"2023Q1","nom":1.98,"real":1.06,"dom":3.12,"ext":-2.4,"resid":0.2},{"t":"2023Q2","nom":1.71,"real":0.69,"dom":2.63,"ext":-1.36,"resid":-0.25},{"t":"2023Q3","nom":3.91,"real":1.59,"dom":0.64,"ext":1.6,"resid":0.08},{"t":"2023Q4","nom":5.9,"real":2.53,"dom":1.53,"ext":1.72,"resid":0.11},{"t":"2024Q1","nom":8.15,"real":3.65,"dom":2.08,"ext":3.02,"resid":-0.6},{"t":"2024Q2","nom":7.38,"real":2.55,"dom":1.83,"ext":2.96,"resid":0.04},{"t":"2024Q3","nom":5.48,"real":1.65,"dom":1.95,"ext":1.68,"resid":0.2},{"t":"2024Q4","nom":5.21,"real":1.06,"dom":2.38,"ext":1.55,"resid":0.22},{"t":"2025Q1","nom":2.92,"real":0.16,"dom":2.61,"ext":0.25,"resid":-0.09},{"t":"2025Q2","nom":3.37,"real":0.7,"dom":1.73,"ext":0.81,"resid":0.13},{"t":"2025Q3","nom":4.75,"real":2.09,"dom":2.04,"ext":0.52,"resid":0.11},{"t":"2025Q4","nom":6.34,"real":1.55,"dom":2.6,"ext":2.26,"resid":-0.07},{"t":"2026Q1","nom":17.12,"real":3.78,"dom":1.83,"ext":11.32,"resid":0.19},{"t":"2026Q2","nom":26.43,"real":3.74,"dom":3.54,"ext":19.1,"resid":0.04}]; // [{t,nom,real,dom,ext,resid}]
+const FROM=+(new URLSearchParams(location.search).get('from')||1961);
+const S=ALL.filter(s=>+s.t.slice(0,4)>=FROM);
+const N=S.length;
+const REC=new URLSearchParams(location.search).has('record');
+const reduced=!REC&&(matchMedia('(prefers-reduced-motion: reduce)').matches||new URLSearchParams(location.search).has('end'));
+if(REC)document.body.classList.add('rec');
+document.querySelector('.meta').textContent='BANK OF KOREA · YoY · '+S[0].t.replace('Q',' Q')+' – 2026 Q2';
+const SPD=Math.max(0.35,(2026-FROM)/65); // keep total draw time similar for shorter ranges
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const stage=document.getElementById('stage'),tip=document.getElementById('tip');
+
+const C_REAL='#c9c9c4',C_NOM='#ff9a3c',C_DOM='#5c7ba4',C_EXT='#ff5340',C_RES='#6e6e68';
+// monotone cubic (Fritsch–Carlson style) resampling: smooth curves with no
+// overshoot past the actual data values; numbers in tooltip/table stay exact
+function mono(vals,K){
+  const n=vals.length,m=new Array(n),d=new Array(n-1);
+  for(let i=0;i<n-1;i++)d[i]=vals[i+1]-vals[i];
+  m[0]=d[0];m[n-1]=d[n-2];
+  for(let i=1;i<n-1;i++)m[i]=(d[i-1]*d[i]<=0)?0:2*d[i-1]*d[i]/(d[i-1]+d[i]);
+  const out=[];
+  for(let i=0;i<n-1;i++)for(let k=0;k<K;k++){
+    const t=k/K,t2=t*t,t3=t2*t;
+    out.push((2*t3-3*t2+1)*vals[i]+(t3-2*t2+t)*m[i]+(-2*t3+3*t2)*vals[i+1]+(t3-t2)*m[i+1]);
+  }
+  out.push(vals[n-1]);
+  return out;
+}
+const K=8,DN=(N-1)*K+1;
+const D={
+  real:mono(S.map(s=>s.real),K),
+  nom:mono(S.map(s=>s.nom),K),
+  cd:mono(S.map(s=>s.real+s.dom),K),
+  ce:mono(S.map(s=>s.real+s.dom+s.ext),K)
+};
+// smooth per-component contributions (differences of smoothed cumulatives, so
+// they sum exactly to the smoothed nominal-real gap)
+const domC=D.cd.map((v,j)=>v-D.real[j]);
+const extC=D.ce.map((v,j)=>v-D.cd[j]);
+const residC=D.nom.map((v,j)=>v-D.ce[j]);
+// running min/max of everything drawable up to quarter i (lines + cumulative band edges)
+const runMin=[],runMax=[];
+{let lo=1e9,hi=-1e9;
+ for(const s of S){
+   // sign-split stacking: positives pile above the real line, negatives below
+   const up=s.real+Math.max(0,s.dom)+Math.max(0,s.ext)+Math.max(0,s.resid);
+   const dn=s.real+Math.min(0,s.dom)+Math.min(0,s.ext)+Math.min(0,s.resid);
+   lo=Math.min(lo,s.real,s.nom,dn);hi=Math.max(hi,s.real,s.nom,up);
+   runMin.push(lo);runMax.push(hi);
+ }}
+const YF0=Math.floor((runMin[N-1]-1)/2)*2,YF1=Math.ceil((runMax[N-1]+2)/2)*2;
+const PAD={l:70,r:305,t:28,b:40}; // PAD.r animates: 255 while drawing, 300 once bands label too
+const PANEL_R=390;
+let W=0,H=0,hoverI=-1;
+let yLo=YF0,yHi=YF1; // current (animated) y-domain
+
+// state machine: draw -> pause -> unzip -> settle
+let phase='draw',idx=0,tPhase=0,tDraw=0,mixA=0,eraA=0,lastT=null;
+
+// ---- recording (?record): canvas-native capture, background painted in ----
+let recorder=null,recDone=false;
+function startRecording(){
+  if(!REC)return;
+  if(recorder&&recorder.state!=='inactive')recorder.stop();
+  const stream=cv.captureStream(60);
+  const mime=['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm']
+    .find(m=>MediaRecorder.isTypeSupported(m))||'video/webm';
+  const r=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:35e6});
+  const chunks=[];
+  r.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  r.onstop=()=>{
+    const ext=mime.startsWith('video/mp4')?'mp4':'webm';
+    const url=URL.createObjectURL(new Blob(chunks,{type:mime.split(';')[0]}));
+    const a=document.createElement('a');
+    a.href=url;a.download='korea-gdp-wedge.'+ext;
+    document.body.appendChild(a);a.click();a.remove();
+  };
+  r.start();recorder=r;recDone=false;
+}
+function stopRecording(){if(recorder&&recorder.state!=='inactive')recorder.stop();recDone=true;}
+
+function layout(){
+  if(REC){
+    cv.width=1920;cv.height=1080;ctx.setTransform(1.6,0,0,1.6,0,0);
+    W=1200;H=675;PAD.t=88;return;
+  }
+  const r=stage.getBoundingClientRect(),d=devicePixelRatio||1;
+  cv.width=r.width*d;cv.height=r.height*d;ctx.setTransform(d,0,0,d,0,0);
+  W=r.width;H=r.height;
+}
+const xd=j=>PAD.l+(W-PAD.l-PAD.r)*j/(DN-1);
+const x=i=>xd(i*K);
+const y=v=>PAD.t+(H-PAD.t-PAD.b)*(1-(v-yLo)/(yHi-yLo));
+function yTargets(){
+  // domain target: drawn-so-far extent while drawing, full extent afterwards
+  if(phase!=='draw')return [YF0,YF1];
+  const i=Math.max(3,Math.min(Math.floor(idx),N-1));
+  let lo=runMin[i]-1,hi=runMax[i]+2;
+  if(hi-lo<10){const m=(hi+lo)/2;lo=m-5;hi=m+5;}
+  return [Math.floor(lo/2)*2,Math.ceil(hi/2)*2];
+}
+const yearOf=i=>+S[i].t.slice(0,4);
+const iOf=t=>S.findIndex(s=>s.t===t);
+const I26=iOf('2026Q2'),I74=iOf('1974Q4');
+// in-figure band label anchors: the quarter where each band is thickest
+let iDomLab=1,iExtLab=1;
+{let b=0,bE=0;
+ for(let i=4;i<N-8;i++)if(Math.abs(S[i].dom)>b){b=Math.abs(S[i].dom);iDomLab=i;}
+ for(let i=4;i<N;i++)if(Math.abs(S[i].ext)>bE){bE=Math.abs(S[i].ext);iExtLab=i;}}
+
+function restart(){
+  phase='draw';idx=0;tPhase=0;tDraw=0;mixA=0;eraA=0;lastT=null;hoverI=-1;
+  document.getElementById('btnSkip').style.display='';
+  document.getElementById('btnReplay').style.display='none';
+  if(reduced){idx=N;mixA=1;phase='settle';eraA=1;
+    document.getElementById('btnSkip').style.display='none';
+    document.getElementById('btnReplay').style.display='';}
+  [yLo,yHi]=reduced?[YF0,YF1]:yTargets();
+  PAD.r=reduced?PANEL_R:305;
+  startRecording();
+}
+
+function frame(now){
+  if(lastT===null)lastT=now;
+  const dt=Math.min((now-lastT)/1000,0.1);lastT=now;
+  if(phase==='draw'){
+    tDraw+=dt;
+    const rate=((REC?3:2.2)+Math.min(REC?9:7,tDraw*(REC?0.95:0.7)))*SPD; // years per second
+    idx+=rate*4*dt;
+    if(idx>=N){idx=N;phase='pause';tPhase=0;}
+  }else if(phase==='pause'){
+    tPhase+=dt;if(tPhase>1.1){phase='unzip';tPhase=0;}
+  }else if(phase==='unzip'){
+    tPhase+=dt;
+    const p=Math.min(tPhase/1.6,1);
+    mixA=p*p*(3-2*p);
+    if(p>=1){phase='settle';tPhase=0;}
+  }else if(phase==='settle'){
+    tPhase+=dt;eraA=Math.min(1,eraA+dt*1.4);
+    if(REC&&!recDone&&tPhase>3.6)stopRecording();
+    if(phase==='settle'&&tPhase>0.2){
+      document.getElementById('btnSkip').style.display='none';
+      document.getElementById('btnReplay').style.display='';
+    }
+  }
+  // y-domain chases the data with a lag, so the 2026 spike pierces the
+  // frame before the scale zooms out underneath it
+  const [tLo,tHi]=yTargets();
+  const k=Math.min(1,dt*2.6);
+  yLo+=(tLo-yLo)*k;yHi+=(tHi-yHi)*k;
+  // right margin: room for the moving tip labels, a bit more once bands label too
+  const prT=(phase==='draw'||phase==='pause')?305:PANEL_R;
+  PAD.r+=(prT-PAD.r)*Math.min(1,dt*3);
+  render();
+  requestAnimationFrame(frame);
+}
+
+// draw a contribution band between edges lo/hi, split into sign runs by the
+// contribution array c: solid where positive, dimmed + 45° hatch where negative
+function band(a0,a1,c,jMax,color,alpha){
+  const runs=[];
+  let start=0,pos=c[0]>=0;
+  for(let j=1;j<=jMax;j++){
+    const s=c[j]>=0;
+    if(s!==pos){runs.push({j0:start,j1:j,neg:!pos});start=j;pos=s;}
+  }
+  runs.push({j0:start,j1:jMax,neg:!pos});
+  for(const r of runs){
+    if(r.j1<=r.j0)continue;
+    const p=new Path2D();
+    p.moveTo(xd(r.j0),y(a0[r.j0]));
+    for(let j=r.j0+1;j<=r.j1;j++)p.lineTo(xd(j),y(a0[j]));
+    for(let j=r.j1;j>=r.j0;j--)p.lineTo(xd(j),y(a1[j]));
+    p.closePath();
+    ctx.globalAlpha=r.neg?alpha*0.4:alpha;
+    ctx.fillStyle=color;ctx.fill(p);
+    if(r.neg){
+      ctx.save();ctx.clip(p);
+      ctx.globalAlpha=alpha*0.85;ctx.strokeStyle=color;ctx.lineWidth=1;
+      let yMin=1e9,yMax=-1e9;
+      for(let j=r.j0;j<=r.j1;j++){
+        yMin=Math.min(yMin,y(a0[j]),y(a1[j]));
+        yMax=Math.max(yMax,y(a0[j]),y(a1[j]));
+      }
+      const x0=xd(r.j0),x1=xd(r.j1),h=yMax-yMin;
+      ctx.beginPath();
+      for(let xx=x0-h;xx<=x1;xx+=7){ctx.moveTo(xx,yMax);ctx.lineTo(xx+h,yMin);}
+      ctx.stroke();ctx.restore();
+    }
+  }
+  ctx.globalAlpha=1;
+}
+function seg(jA,jB,a0,a1,color,alpha){
+  // area between smoothed cumulative curves a0,a1 over dense range [jA,jB]
+  ctx.beginPath();
+  for(let j=jA;j<=jB;j++)ctx.lineTo(xd(j),y(a0[j]));
+  for(let j=jB;j>=jA;j--)ctx.lineTo(xd(j),y(a1[j]));
+  ctx.closePath();
+  ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.fill();ctx.globalAlpha=1;
+}
+function line(jUp,arr,color,width,glowTip){
+  ctx.beginPath();
+  for(let j=0;j<=jUp;j++)ctx.lineTo(xd(j),y(arr[j]));
+  ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineJoin='round';ctx.lineCap='round';
+  ctx.stroke();
+  if(glowTip&&jUp<DN-1){
+    ctx.beginPath();ctx.arc(xd(jUp),y(arr[jUp]),3.5,0,7);
+    ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=REC?14:9;ctx.fill();ctx.shadowBlur=0;
+  }
+}
+
+function render(){
+  ctx.clearRect(0,0,W,H);
+  if(REC){ctx.fillStyle='#141413';ctx.fillRect(0,0,W,H);}
+  const upTo=Math.max(1,Math.min(Math.floor(idx),N-1));
+  const jUp=Math.max(K,Math.round(Math.min(idx,N-1)*K));
+
+  // grid + axes
+  ctx.font='400 17px "IBM Plex Mono",monospace';
+  const ystep=(yHi-yLo)>40?10:((yHi-yLo)>18?5:2);
+  for(let v=Math.ceil(yLo/ystep)*ystep;v<=yHi;v+=ystep){
+    const yy=y(v),zero=v===0;
+    ctx.strokeStyle=zero?'rgba(236,236,234,.3)':'rgba(236,236,234,.08)';
+    ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(PAD.l,yy);ctx.lineTo(W-PAD.r,yy);ctx.stroke();
+    ctx.fillStyle=zero?'#8f8f88':'#6e6e68';ctx.textAlign='right';
+    ctx.fillText((v>0?'+':'')+v+'%',PAD.l-8,yy+3.5);
+  }
+  ctx.textAlign='center';ctx.fillStyle='#6e6e68';
+  const xstep=(2026-FROM)>30?10:5;
+  for(let yr=Math.ceil(FROM/xstep)*xstep;yr<=2026;yr+=xstep){
+    const i=S.findIndex(s=>s.t===yr+'Q1');if(i<0)continue;
+    ctx.fillText(yr,x(i),H-PAD.b+26);
+    ctx.strokeStyle='rgba(236,236,234,.25)';ctx.beginPath();ctx.moveTo(x(i),H-PAD.b);ctx.lineTo(x(i),H-PAD.b+4);ctx.stroke();
+  }
+
+  // gap fill: single tint crossfading into the decomposed bands all at once
+  if(mixA>0.01){
+    // sign-split stacking anchored on the real line: positive contributions
+    // pile upward, negative ones hang below the white line
+    const pos=new Float64Array(jUp+1),neg=new Float64Array(jUp+1);
+    for(const [c,color,aBase] of [[domC,C_DOM,0.5],[extC,C_EXT,0.55],[residC,C_RES,0.28]]){
+      const lo=new Float64Array(jUp+1),hi=new Float64Array(jUp+1);
+      for(let j=0;j<=jUp;j++){
+        const v=c[j];
+        if(v>=0){lo[j]=D.real[j]+pos[j];hi[j]=lo[j]+v;pos[j]+=v;}
+        else{hi[j]=D.real[j]-neg[j];lo[j]=hi[j]+v;neg[j]-=v;}
+      }
+      band(lo,hi,c,jUp,color,aBase*mixA);
+    }
+  }
+  if(mixA<0.99)seg(0,jUp,D.real,D.nom,C_NOM,0.16*(1-mixA));
+
+  // the two lines
+  line(jUp,D.real,C_REAL,3,phase==='draw');
+  line(jUp,D.nom,C_NOM,3,phase==='draw');
+
+  // labels riding the line tips; band legends join them at the right when decomposed
+  {
+    const fmt=(v,u)=>(v>0?'+':'')+v.toFixed(1)+u;
+    const labs=[
+      {t:'nominal GDP '+fmt(D.nom[jUp],'%'),c:C_NOM,y:y(D.nom[jUp]),a:1},
+      {t:'real GDP '+fmt(D.real[jUp],'%'),c:C_REAL,y:y(D.real[jUp]),a:1}
+    ];
+    if(mixA>0.3){
+      const s=S[N-1],a=(mixA-0.3)/0.7;
+      labs.push({t:'external prices '+fmt(s.ext,'pp'),c:'#ffb4a6',y:y(s.real+s.dom+s.ext/2),a});
+      labs.push({t:'domestic prices '+fmt(s.dom,'pp'),c:'#a9c2e0',y:y(s.real+s.dom/2),a});
+    }
+    // resolve vertical collisions: sort, push down, then clamp back up
+    labs.sort((p,q)=>p.y-q.y);
+    for(let i=1;i<labs.length;i++)if(labs[i].y-labs[i-1].y<38)labs[i].y=labs[i-1].y+38;
+    for(let i=labs.length-1;i>=0;i--){
+      const lim=(i===labs.length-1)?H-PAD.b-8:labs[i+1].y-38;
+      if(labs[i].y>lim)labs[i].y=lim;
+    }
+    ctx.textAlign='left';ctx.font='500 26px "IBM Plex Mono",monospace';ctx.lineJoin='round';
+    for(const L of labs){
+      ctx.globalAlpha=L.a;
+      ctx.lineWidth=6;ctx.strokeStyle='#141413';
+      ctx.strokeText(L.t,xd(jUp)+14,L.y+8.5);
+      ctx.fillStyle=L.c;ctx.fillText(L.t,xd(jUp)+14,L.y+8.5);
+    }
+    ctx.globalAlpha=1;
+  }
+
+  // year counter while drawing
+  if(phase==='draw'){
+    ctx.textAlign='right';ctx.fillStyle='#ececea';
+    ctx.font='500 55px "IBM Plex Mono",monospace';
+    ctx.fillText(yearOf(upTo),W-PAD.r-6,PAD.t+58);
+  }
+
+  // era annotations, anchored in the clear band under the legend
+  const era=(xc,align,txt1,txt2,color,a)=>{
+    if(a<0.02)return;
+    ctx.globalAlpha=a;
+    ctx.textAlign=align;
+    ctx.lineWidth=4;ctx.strokeStyle='#141413';ctx.lineJoin='round';
+    ctx.font='500 21px "IBM Plex Sans",sans-serif';
+    ctx.strokeText(txt1,xc,PAD.t+34);
+    ctx.fillStyle=color;ctx.fillText(txt1,xc,PAD.t+34);
+    ctx.font='400 16px "IBM Plex Mono",monospace';
+    ctx.strokeText(txt2,xc,PAD.t+58);
+    ctx.fillStyle='#8f8f88';ctx.fillText(txt2,xc,PAD.t+58);
+    ctx.globalAlpha=1;
+  };
+  if(I74>=0)era(x(I74)+56,'center','the wedge made at home','1970s: domestic inflation','#8fb3de',eraA);
+
+  // record mode: title + credit in the frame
+  if(REC){
+    ctx.textAlign='left';
+    ctx.fillStyle='#ececea';ctx.font='500 26px "IBM Plex Sans",sans-serif';
+    ctx.fillText('Korea: nominal and real GDP growth',28,40);
+    ctx.fillStyle='#8f8f88';ctx.font='400 14px "IBM Plex Mono",monospace';
+    ctx.fillText('year-on-year growth · Data: Bank of Korea (ECOS) · taejinpark.com',28,64);
+  }
+
+  // hover crosshair
+  if(hoverI>=0&&hoverI<=upTo-0){
+    const hx=x(hoverI);
+    ctx.strokeStyle='rgba(143,179,222,.5)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(hx,PAD.t);ctx.lineTo(hx,H-PAD.b);ctx.stroke();
+    for(const [v,c] of [[S[hoverI].nom,C_NOM],[S[hoverI].real,C_REAL]]){
+      ctx.beginPath();ctx.arc(hx,y(v),4.5,0,7);ctx.fillStyle='#141413';ctx.fill();
+      ctx.beginPath();ctx.arc(hx,y(v),3,0,7);ctx.fillStyle=c;ctx.fill();
+    }
+  }
+}
+
+// ---- interaction ----
+function showTip(i,px){
+  hoverI=i;
+  const s=S[i];
+  tip.textContent='';
+  const el=(cls,txt)=>{const e=document.createElement('div');e.className=cls;if(txt)e.textContent=txt;return e;};
+  tip.appendChild(el('d',s.t.replace('Q',' Q')));
+  const row=(color,label,val,fill)=>{
+    const r=el('row');
+    const k=el('k');k.style.borderTopColor=color;if(fill)k.style.borderTopWidth='6px';r.appendChild(k);
+    const b=document.createElement('b');b.textContent=(val>0?'+':'')+val.toFixed(1);r.appendChild(b);
+    r.appendChild(document.createTextNode(' '+label));tip.appendChild(r);
+  };
+  row(C_NOM,'nominal %',s.nom);row(C_REAL,'real %',s.real);
+  row('#ececea','gap pp',s.nom-s.real);
+  row(C_DOM,'domestic',s.dom,true);row(C_EXT,'external',s.ext,true);
+  tip.style.display='block';
+  const wr=stage.getBoundingClientRect(),tw=tip.offsetWidth;
+  let lx=x(i)+14;if(lx+tw>wr.width-8)lx=x(i)-tw-14;
+  tip.style.left=lx+'px';
+  tip.style.top=Math.max(8,Math.min(y(s.nom)-20,wr.height-150))+'px';
+}
+function hideTip(){hoverI=-1;tip.style.display='none';}
+stage.addEventListener('pointermove',e=>{
+  const r=stage.getBoundingClientRect(),px=e.clientX-r.left;
+  let i=Math.round((px-PAD.l)/(W-PAD.l-PAD.r)*(N-1));
+  i=Math.max(0,Math.min(Math.min(N-1,Math.max(1,Math.floor(idx))),i));
+  showTip(i);
+});
+stage.addEventListener('pointerleave',hideTip);
+document.getElementById('btnSkip').addEventListener('click',()=>{
+  if(phase==='draw'){idx=N;phase='pause';tPhase=0.6;}
+});
+document.getElementById('btnReplay').addEventListener('click',restart);
+
+// table view
+const tv=document.getElementById('tableview'),btnT=document.getElementById('btnTable');
+let built=false,open=false;
+btnT.addEventListener('click',()=>{
+  open=!open;
+  if(open&&!built){
+    const tbl=document.createElement('table');
+    const tr=document.createElement('tr');
+    for(const h of ['Quarter','Nominal %','Real %','Gap pp','Domestic','External','Residual']){const th=document.createElement('th');th.textContent=h;tr.appendChild(th);}
+    const th=document.createElement('thead');th.appendChild(tr);tbl.appendChild(th);
+    const tb=document.createElement('tbody');
+    for(const s of S){
+      const r=document.createElement('tr');
+      for(const v of [s.t,s.nom,s.real,+(s.nom-s.real).toFixed(1),s.dom,s.ext,s.resid]){
+        const td=document.createElement('td');
+        td.textContent=typeof v==='number'?(v>0?'+':'')+v.toFixed(1):v;
+        r.appendChild(td);
+      }
+      tb.appendChild(r);
+    }
+    tbl.appendChild(tb);tv.appendChild(tbl);built=true;
+  }
+  tv.style.display=open?'block':'none';
+  btnT.textContent=open?'view chart':'view data table';
+  btnT.setAttribute('aria-pressed',String(open));
+  if(open)tv.scrollTop=tv.scrollHeight;
+});
+
+window.addEventListener('resize',layout);
+layout();restart();
+requestAnimationFrame(frame);
+</script>
+</body></html>
